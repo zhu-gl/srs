@@ -294,6 +294,15 @@ private:
      * to stop all ingesters, cleanup HLS and dvr.
      */
     virtual void dispose();
+#if 1//def __SRS_DYNAMIC__
+public:
+    int ingest_active(SrsRequest* req);
+    void ingest_unactive(SrsRequest* req);
+
+    int ingest_add(std::string v, std::string i, struct SrsRequestParam* pm, std::string& url_out);
+    bool identify_ingest(int id);
+    void ingest_remove(int id);
+#endif
 // server startup workflow, @see run_master()
 public:
     /**

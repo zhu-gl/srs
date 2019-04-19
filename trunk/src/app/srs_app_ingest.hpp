@@ -31,6 +31,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef SRS_AUTO_INGEST
 
+#if 1//def __SRS_DYNAMIC__
+#include <map>
+#endif
 #include <vector>
 
 #include <srs_app_thread.hpp>
@@ -40,6 +43,30 @@ class SrsFFMPEG;
 class SrsConfDirective;
 class SrsPithyPrint;
 
+#if 1//def __SRS_DYNAMIC__
+class SrsRequest;
+
+typedef struct SrsIngestParam {
+    std::string vhost; // key
+    std::string name;  // key
+
+    int input_type;
+    std::string input;
+    std::string ffmpeg_bin;
+    std::string output;
+} SrsIngestParam;
+
+typedef struct SrsRequestParam {
+    std::string username;
+    std::string password;
+
+    std::string ip;
+    std::string channel;
+    std::string starttime;
+    std::string endtime;
+} SrsRequestParam;
+#endif
+
 /**
 * ingester ffmpeg object.
 */
@@ -48,17 +75,37 @@ class SrsIngesterFFMPEG
 private:
     std::string vhost;
     std::string id;
+#if 1//def __SRS_DYNAMIC__
+    int channel;
+    bool ff_active;
+    SrsRequestParam req_param;
+#endif
     SrsFFMPEG* ffmpeg;
     int64_t starttime;
 public:
     SrsIngesterFFMPEG();
     virtual ~SrsIngesterFFMPEG();
+
+#if 1//def __SRS_DYNAMIC__
+    std::string out_url();
+    unsigned int channel_out();
+    void active(bool b_active);
+    bool active();
+#endif
+
 public:
+#if 1//def __SRS_DYNAMIC__
+    virtual int initialize(SrsFFMPEG* ff, std::string v, std::string i, SrsRequestParam& pm, unsigned int chl);
+#else
     virtual int initialize(SrsFFMPEG* ff, std::string v, std::string i);
+#endif
     // the ingest uri, [vhost]/[ingest id]
     virtual std::string uri();
     // the alive in ms.
     virtual int alive();
+#if 1//def __SRS_DYNAMIC__
+    virtual bool equals(std::string v, std::string i, SrsRequestParam& pm);
+#endif
     virtual bool equals(std::string v, std::string i);
     virtual bool equals(std::string v);
 public:
@@ -77,7 +124,15 @@ public:
 class SrsIngester : public ISrsReusableThreadHandler, public ISrsReloadHandler
 {
 private:
+#if 1//def __SRS_DYNAMIC__
+    std::map<int, SrsIngesterFFMPEG*> ingesters;
+    std::map<std::string, SrsIngestParam> ingesters_config;
+
+    unsigned short channel_stream;
+    unsigned short channel_file;
+#else
     std::vector<SrsIngesterFFMPEG*> ingesters;
+#endif
 private:
     SrsReusableThread* pthread;
     SrsPithyPrint* pprint;
@@ -86,6 +141,14 @@ public:
     virtual ~SrsIngester();
 public:
     virtual void dispose();
+#if 1//def __SRS_DYNAMIC__
+    int ingest_active(SrsRequest* req);
+    void ingest_unactive(SrsRequest* req);
+
+    int ingest_add(std::string v, std::string i, struct SrsRequestParam* pm, std::string& url_out);
+    bool identify_ingest(int id);
+    void ingest_remove(int id);
+#endif
 public:
     virtual int start();
     virtual void stop();

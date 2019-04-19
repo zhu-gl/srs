@@ -739,12 +739,44 @@ ISrsSourceHandler::~ISrsSourceHandler()
 {
 }
 
+#if 1//def __SRS_DYNAMIC__
+std::map<int, SrsSource*> SrsSource::pool;
+#else
 std::map<std::string, SrsSource*> SrsSource::pool;
+#endif
 
 int SrsSource::fetch_or_create(SrsRequest* r, ISrsSourceHandler* h, SrsSource** pps)
 {
     int ret = ERROR_SUCCESS;
     
+#if 1//def __SRS_DYNAMIC__
+    int channel = atoi(r->stream.c_str());
+    if (channel < 0) {
+        srs_error("fetch_or_create error channel: %s", r->stream.c_str());
+        return ERROR_USER_PARAM;
+    }
+
+    std::map<int, SrsSource*>::iterator iter = pool.find(channel);
+    if (iter != pool.end()) {
+        srs_trace("fetch_or_create fetch: %d", iter->first);
+        *pps = iter->second;
+        return ret;
+    }
+
+    SrsSource* source = new SrsSource();
+    source->channel_ = channel;
+    if (!source || (ret = source->initialize(r, h)) != ERROR_SUCCESS) {
+        srs_error("fetch_or_create error to initialize: %s", r->stream.c_str());
+        srs_freep(source);
+        return ret;
+    }
+
+    pool[channel] = source;
+    srs_info("create new source for url=%s, vhost=%s", stream_url.c_str(), vhost.c_str());
+
+    *pps = source;
+
+#else
     SrsSource* source = NULL;
     if ((source = fetch(r)) != NULL) {
         *pps = source;
@@ -767,14 +799,46 @@ int SrsSource::fetch_or_create(SrsRequest* r, ISrsSourceHandler* h, SrsSource** 
     srs_info("create new source for url=%s, vhost=%s", stream_url.c_str(), vhost.c_str());
     
     *pps = source;
+#endif
     
     return ret;
 }
+
+#if 1//def __SRS_DYNAMIC__
+void SrsSource::remove(int channel)
+{
+    if (channel < 0) {
+        return;
+    }
+
+    if ((channel & 0xFFFF0000) == 0) {
+        return;
+    }
+
+    std::map<int, SrsSource*>::iterator iter = pool.find(channel);
+    if (iter == pool.end()) {
+        return;
+    }
+
+    if (iter->second->consumers.size() == 0) {
+        srs_trace("srssource remove id: %d", channel);
+        srs_freep(iter->second);
+        pool.erase(iter);
+    }
+}
+
+int SrsSource::channel()
+{
+    return channel_;
+}
+#endif
 
 SrsSource* SrsSource::fetch(SrsRequest* r)
 {
     SrsSource* source = NULL;
     
+#if 1//def __SRS_DYNAMIC__
+#else
     string stream_url = r->get_stream_url();
     if (pool.find(stream_url) == pool.end()) {
         return NULL;
@@ -786,13 +850,18 @@ SrsSource* SrsSource::fetch(SrsRequest* r)
     // for origin auth is on, the token in request maybe invalid,
     // and we only need to update the token of request, it's simple.
     source->_req->update_auth(r);
+#endif
 
     return source;
 }
 
 void SrsSource::dispose_all()
 {
+#if 1//def __SRS_DYNAMIC__
+    std::map<int, SrsSource*>::iterator it;
+#else
     std::map<std::string, SrsSource*>::iterator it;
+#endif
     for (it = pool.begin(); it != pool.end(); ++it) {
         SrsSource* source = it->second;
         source->dispose();
@@ -815,7 +884,11 @@ int SrsSource::do_cycle_all()
 {
     int ret = ERROR_SUCCESS;
     
+#if 1//def __SRS_DYNAMIC__
+    std::map<int, SrsSource*>::iterator it;
+#else
     std::map<std::string, SrsSource*>::iterator it;
+#endif
     for (it = pool.begin(); it != pool.end();) {
         SrsSource* source = it->second;
         
@@ -854,7 +927,11 @@ int SrsSource::do_cycle_all()
 
 void SrsSource::destroy()
 {
+#if 1//def __SRS_DYNAMIC__
+    std::map<int, SrsSource*>::iterator it;
+#else
     std::map<std::string, SrsSource*>::iterator it;
+#endif
     for (it = pool.begin(); it != pool.end(); ++it) {
         SrsSource* source = it->second;
         srs_freep(source);
@@ -954,6 +1031,10 @@ SrsSource::SrsSource()
     hds = new SrsHds(this);
 #endif
     
+#if 1//def __SRS_DYNAMIC__
+    channel_ = -1;
+#endif
+
     cache_metadata = cache_sh_video = cache_sh_audio = NULL;
     
     _can_publish = true;
@@ -1771,6 +1852,13 @@ int SrsSource::on_audio_imp(SrsSharedPtrMessage* msg)
     
     // copy to all consumer
     if (!drop_for_reduce) {
+#if 1//def __SRS_DYNAMIC__
+        if (consumers.size() == 0) {
+            srs_trace("on audio publish has not consumers return");
+            return ERROR_USER_NO_CONSUMER;
+        }
+#endif
+
         for (int i = 0; i < (int)consumers.size(); i++) {
             SrsConsumer* consumer = consumers.at(i);
             if ((ret = consumer->enqueue(msg, atc, jitter_algorithm)) != ERROR_SUCCESS) {
@@ -1986,6 +2074,13 @@ int SrsSource::on_video_imp(SrsSharedPtrMessage* msg)
     
     // copy to all consumer
     if (!drop_for_reduce) {
+#if 1//def __SRS_DYNAMIC__
+        if (consumers.size() == 0) {
+            srs_trace("on video publish has not consumers return");
+            return ERROR_USER_NO_CONSUMER;
+        }
+#endif
+        
         for (int i = 0; i < (int)consumers.size(); i++) {
             SrsConsumer* consumer = consumers.at(i);
             if ((ret = consumer->enqueue(msg, atc, jitter_algorithm)) != ERROR_SUCCESS) {

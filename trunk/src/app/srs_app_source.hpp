@@ -414,7 +414,12 @@ public:
 class SrsSource : public ISrsReloadHandler
 {
 private:
+#if 1//def __SRS_DYNAMIC__
+    static std::map<int, SrsSource*> pool;
+    int channel_;
+#else
     static std::map<std::string, SrsSource*> pool;
+#endif
 public:
     /**
     *  create source when fetch from cache failed.
@@ -423,6 +428,11 @@ public:
     * @param pps the matched source, if success never be NULL.
     */
     static int fetch_or_create(SrsRequest* r, ISrsSourceHandler* h, SrsSource** pps);
+
+#if 1//def __SRS_DYNAMIC__
+    static void remove(int channel);
+    int channel();
+#endif
 private:
     /**
     * get the exists source, NULL when not exists.

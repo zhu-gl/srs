@@ -279,6 +279,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ERROR_USER_START                    9000
 #define ERROR_USER_DISCONNECT               9001
 #define ERROR_SOURCE_NOT_FOUND              9002
+#if 1//def __SRS_DYNAMIC__
+#define ERROR_USER_NO_CONSUMER              9003
+#define ERROR_USER_PARAM                    9004
+#define ERROR_USER_PARAM_TIME               9005
+#define ERROR_USER_ALLOC_MEMORY             9006
+#define ERROR_USER_INGEST_NOT_FOUND         9007
+#endif
 #define ERROR_USER_END                      9999
 
 /**

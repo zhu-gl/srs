@@ -838,6 +838,84 @@ int SrsGoApiClients::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
     return ret;
 }
 
+#if 1//def __SRS_DYNAMIC__
+#include <srs_app_server.hpp>
+#include <srs_app_ingest.hpp>
+int srs_api_response_text(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, std::string json)
+{
+    // no jsonp, directly response.
+    if (!r->is_jsonp()) {
+        SrsHttpHeader* h = w->header();
+
+        h->set_content_length(json.length());
+        h->set_content_type("text/html");
+
+        return w->write((char*)json.data(), (int)json.length());
+    }
+
+    return ERROR_USER_PARAM;
+}
+
+SrsGoApiIngest::SrsGoApiIngest(SrsServer* svr)
+    : srs_svr(svr)
+{
+}
+
+SrsGoApiIngest::~SrsGoApiIngest()
+{
+}
+
+int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
+{
+    int ret = ERROR_SUCCESS;
+
+    std::stringstream ss;
+    std::string vhost = r->query_get("vhost");
+    std::string ingest = r->query_get("ingest");
+    if (vhost.empty()) {
+        vhost = SRS_CONSTS_RTMP_DEFAULT_VHOST;
+    }
+
+    if (vhost.empty() || ingest.empty()) {
+        ss << SRS_JOBJECT_START
+            << SRS_JFIELD_ERROR(ERROR_USER_PARAM)
+            << SRS_JOBJECT_END;
+
+        srs_error("http api ingest error vhost: %s or app: %s", vhost.c_str(), ingest.c_str());
+        return srs_api_response_text(w, r, ss.str());
+    }
+
+    SrsRequestParam reqPM;
+    reqPM.ip = r->query_get("ip");
+    reqPM.channel = r->query_get("channel");
+    reqPM.username = r->query_get("username");
+    reqPM.password = r->query_get("password");
+    reqPM.starttime = r->query_get("starttime");
+    reqPM.endtime = r->query_get("endtime");
+    if (reqPM.ip.empty() || reqPM.channel.empty() || 
+        reqPM.username.empty() || reqPM.password.empty()) {
+        ss << SRS_JOBJECT_START
+            << SRS_JFIELD_ERROR(ERROR_USER_PARAM)
+            << SRS_JOBJECT_END;
+
+        srs_error("http api ingest error param ip: %s channel: %s user: %s pass: %s",
+            reqPM.ip.c_str(), reqPM.channel.c_str(), reqPM.username.c_str(), reqPM.password.c_str());
+        return srs_api_response_text(w, r, ss.str());
+    }
+
+    std::string url_out;
+    ret = srs_svr->ingest_add(vhost, ingest, &reqPM, url_out);
+
+    ss << SRS_JOBJECT_START
+        << SRS_JFIELD_ERROR(ret) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("url", url_out)
+        << SRS_JOBJECT_END;
+
+    srs_trace("http api ingest result: %d url: %s", ret, url_out.c_str());
+    return srs_api_response_text(w, r, ss.str());
+}
+#endif
+
 SrsGoApiError::SrsGoApiError()
 {
 }

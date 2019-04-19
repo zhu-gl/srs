@@ -566,6 +566,53 @@ void SrsServer::dispose()
 #endif
 }
 
+#if 1//def __SRS_DYNAMIC__
+int SrsServer::ingest_active(SrsRequest* req)
+{
+    if (!ingester) {
+        return ERROR_USER_PARAM;
+    }
+
+    return ingester->ingest_active(req);
+}
+
+void SrsServer::ingest_unactive(SrsRequest* req)
+{
+    if (!ingester) {
+        return;
+    }
+
+    ingester->ingest_unactive(req);
+}
+
+int SrsServer::ingest_add(std::string v, std::string i, struct SrsRequestParam* pm, std::string& url_out)
+{
+    if (!ingester) {
+        return ERROR_USER_PARAM;
+    }
+
+    return ingester->ingest_add(v, i, pm, url_out);
+}
+
+bool SrsServer::identify_ingest(int id)
+{
+    if (!ingester) {
+        return false;
+    }
+
+    return ingester->identify_ingest(id);
+}
+
+void SrsServer::ingest_remove(int id)
+{
+    if (!ingester) {
+        return;
+    }
+
+    ingester->ingest_remove(id);
+}
+#endif
+
 int SrsServer::initialize(ISrsServerCycle* cycle_handler)
 {
     int ret = ERROR_SUCCESS;
@@ -814,6 +861,11 @@ int SrsServer::http_handle()
     if ((ret = http_api_mux->handle("/api/v1/clients/", new SrsGoApiClients())) != ERROR_SUCCESS) {
         return ret;
     }
+#if 1//def __SRS_DYNAMIC__
+    if ((ret = http_api_mux->handle("/api/v1/ingest", new SrsGoApiIngest(this))) != ERROR_SUCCESS) {
+        return ret;
+    }
+#endif
     
     // test the request info.
     if ((ret = http_api_mux->handle("/api/v1/tests/requests", new SrsGoApiRequests())) != ERROR_SUCCESS) {

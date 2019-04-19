@@ -435,6 +435,13 @@ int SrsRtmpConn::stream_service_cycle()
         }
         return ret;
     }
+
+#if 1//def __SRS_DYNAMIC__
+    if (!server->identify_ingest(atoi(req->stream.c_str()))) {
+        srs_error("identify ingest not find. ret=%d", ERROR_USER_INGEST_NOT_FOUND);
+        return ERROR_USER_INGEST_NOT_FOUND;
+    }
+#endif
     
     srs_discovery_tc_url(req->tcUrl, req->schema, req->host, req->vhost, req->app, req->stream, req->port, req->param);
     req->strip();
@@ -522,6 +529,13 @@ int SrsRtmpConn::stream_service_cycle()
     switch (type) {
         case SrsRtmpConnPlay: {
             srs_verbose("start to play stream %s.", req->stream.c_str());
+
+#if 1//def __SRS_DYNAMIC__
+            if ((ret = server->ingest_active(req)) != ERROR_SUCCESS) {
+                srs_error("ingest to active failed. ret=%d", ret);
+                return ret;
+            }
+#endif
             
             // response connection start play
             if ((ret = rtmp->start_play(res->stream_id)) != ERROR_SUCCESS) {
@@ -547,7 +561,18 @@ int SrsRtmpConn::stream_service_cycle()
                 return ret;
             }
             
+#if 1//def __SRS_DYNAMIC__
+            ret = publishing(source);
+            if (ERROR_USER_NO_CONSUMER == ret) {
+                srs_trace("publish id: %d has no consumer stop ingest", source->source_id());
+                server->ingest_unactive(req);
+            }
+
+            SrsSource::remove(source->channel());
+            return ret;
+#else
             return publishing(source);
+#endif
         }
         case SrsRtmpConnHaivisionPublish: {
             srs_verbose("Haivision start to publish stream %s.", req->stream.c_str());

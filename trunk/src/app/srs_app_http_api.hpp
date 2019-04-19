@@ -177,6 +177,21 @@ public:
     virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
 };
 
+#if 1//def __SRS_DYNAMIC__
+class SrsServer;
+class SrsGoApiIngest : public ISrsHttpHandler
+{
+public:
+    SrsGoApiIngest(SrsServer* svr);
+    virtual ~SrsGoApiIngest();
+public:
+    virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
+
+private:
+    SrsServer* srs_svr;
+};
+#endif
+
 class SrsGoApiError : public ISrsHttpHandler
 {
 public:
