@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{11F5216F-7A29-4BE1-8C6A-8FA167BD05DF}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeIncludeSearchPath>$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0001\4.4.7;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0001\4.4.7\x86_64-redhat-linux;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0001\4.4.7\backward;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0003\include;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0002\include;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0000\include;.\;..\..\..\src\app;..\..\..\src\core;..\..\..\src\kernel;..\..\..\src\protocol;.\3rdparty\http_parser;.\3rdparty\openssl;.\3rdparty\st;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>$(ProjectDir)\gcc_Debug.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
+    <NMakeOutput>$(ProjectDir)srs_vs2015-Debug.vgdbsettings</NMakeOutput>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Debug;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeIncludeSearchPath>$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0001\4.4.7;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0001\4.4.7\x86_64-redhat-linux;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0001\4.4.7\backward;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0003\include;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0002\include;$(LOCALAPPDATA)\VisualGDB\RemoteSourceCache\127.0.0.1\0000\include;.\;..\..\..\src\app;..\..\..\src\core;..\..\..\src\kernel;..\..\..\src\protocol;.\3rdparty\http_parser;.\3rdparty\openssl;.\3rdparty\st;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>$(ProjectDir)\gcc_Release.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)" "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
+    <NMakeOutput>$(ProjectDir)srs_vs2015-Release.vgdbsettings</NMakeOutput>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Release;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="debug.mak" />
+    <None Include="Makefile" />
+    <None Include="release.mak" />
+    <None Include="srs_vs2015-Debug.vgdbsettings" />
+    <None Include="srs_vs2015-Release.vgdbsettings" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\app\srs_app_async_call.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_bandwidth.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_caster_flv.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_config.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_conn.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_dvr.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_edge.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_empty.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_encoder.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_ffmpeg.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_forward.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_hds.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_heartbeat.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_hls.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_http_api.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_http_client.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_http_conn.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_http_hooks.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_http_static.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_http_stream.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_ingest.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_listener.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_log.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_mpegts_udp.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_pithy_print.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_recv_thread.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_refer.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_reload.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_rtmp_conn.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_rtsp.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_security.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_server.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_source.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_st.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_statistic.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_thread.hpp" />
+    <ClInclude Include="..\..\..\src\app\srs_app_utility.hpp" />
+    <ClInclude Include="..\..\..\src\core\srs_core.hpp" />
+    <ClInclude Include="..\..\..\src\core\srs_core_autofree.hpp" />
+    <ClInclude Include="..\..\..\src\core\srs_core_mem_watch.hpp" />
+    <ClInclude Include="..\..\..\src\core\srs_core_performance.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_aac.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_buffer.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_codec.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_consts.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_error.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_file.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_flv.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_log.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_mp3.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_stream.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_ts.hpp" />
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_utility.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_http_stack.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_protocol_buffer.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_protocol_json.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_protocol_kbps.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_raw_avc.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_amf0.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_handshake.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_io.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_msg_array.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_stack.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_utility.hpp" />
+    <ClInclude Include="..\..\..\src\protocol\srs_rtsp_stack.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\app\srs_app_async_call.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_bandwidth.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_caster_flv.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_config.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_conn.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_dvr.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_edge.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_empty.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_encoder.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_ffmpeg.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_forward.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_hds.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_heartbeat.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_hls.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_http_api.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_http_client.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_http_conn.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_http_hooks.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_http_static.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_http_stream.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_ingest.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_listener.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_log.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_mpegts_udp.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_pithy_print.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_recv_thread.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_refer.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_reload.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_rtmp_conn.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_rtsp.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_security.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_server.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_source.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_st.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_statistic.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_thread.cpp" />
+    <ClCompile Include="..\..\..\src\app\srs_app_utility.cpp" />
+    <ClCompile Include="..\..\..\src\core\srs_core.cpp" />
+    <ClCompile Include="..\..\..\src\core\srs_core_autofree.cpp" />
+    <ClCompile Include="..\..\..\src\core\srs_core_mem_watch.cpp" />
+    <ClCompile Include="..\..\..\src\core\srs_core_performance.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_aac.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_buffer.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_codec.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_consts.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_error.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_file.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_flv.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_log.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_mp3.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_stream.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_ts.cpp" />
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_utility.cpp" />
+    <ClCompile Include="..\..\..\src\main\srs_main_server.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_http_stack.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_protocol_buffer.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_protocol_json.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_protocol_kbps.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_raw_avc.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_amf0.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_handshake.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_io.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_msg_array.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_stack.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_utility.cpp" />
+    <ClCompile Include="..\..\..\src\protocol\srs_rtsp_stack.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

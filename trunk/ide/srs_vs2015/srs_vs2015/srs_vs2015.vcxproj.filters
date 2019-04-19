@@ -1,0 +1,461 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source files">
+      <UniqueIdentifier>{47b46474-5185-4fe9-b5b6-901c8687f720}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header files">
+      <UniqueIdentifier>{2270b974-fa7e-48af-ab76-6c8001c07016}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource files">
+      <UniqueIdentifier>{989f0c12-531d-42cb-98d3-0ebf97c4b872}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Make files">
+      <UniqueIdentifier>{91cb034c-e7ae-42d9-8492-aaff9854c0db}</UniqueIdentifier>
+      <Extensions>*.mak</Extensions>
+    </Filter>
+    <Filter Include="VisualGDB settings">
+      <UniqueIdentifier>{c11bfbbf-4b91-4524-acf5-813e279b2497}</UniqueIdentifier>
+      <Extensions>*.vgdbsettings</Extensions>
+    </Filter>
+    <Filter Include="Header files\app">
+      <UniqueIdentifier>{0ed7f2cb-5bb0-45d3-b3e2-37469fd4fee7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\core">
+      <UniqueIdentifier>{ac0e4013-9900-437e-af06-0ad9b1aa1013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\kernel">
+      <UniqueIdentifier>{a825d810-3a19-4602-8d74-fe513d7f353c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\protocol">
+      <UniqueIdentifier>{9396dbc7-f9b5-45b5-afec-3f4f31f2120f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\app">
+      <UniqueIdentifier>{c621dffb-6ada-4240-ae3d-0f3e43cea868}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\core">
+      <UniqueIdentifier>{92439112-122b-42ba-a530-a0aa814782e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\kernel">
+      <UniqueIdentifier>{f21ff1b4-6581-4f9c-af4d-677de1d0191f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\protocol">
+      <UniqueIdentifier>{1157ac07-60e4-4d8c-a82c-e30c99604bc8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile" />
+    <None Include="debug.mak">
+      <Filter>Make files</Filter>
+    </None>
+    <None Include="srs_vs2015-Debug.vgdbsettings">
+      <Filter>VisualGDB settings</Filter>
+    </None>
+    <None Include="release.mak">
+      <Filter>Make files</Filter>
+    </None>
+    <None Include="srs_vs2015-Release.vgdbsettings">
+      <Filter>VisualGDB settings</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\app\srs_app_async_call.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_bandwidth.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_caster_flv.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_config.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_conn.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_dvr.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_edge.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_empty.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_encoder.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_ffmpeg.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_forward.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_hds.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_heartbeat.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_hls.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_http_api.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_http_client.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_http_conn.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_http_hooks.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_http_static.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_http_stream.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_ingest.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_listener.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_log.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_mpegts_udp.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_pithy_print.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_recv_thread.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_refer.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_reload.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_rtmp_conn.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_rtsp.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_security.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_server.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_source.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_st.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_statistic.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_thread.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\app\srs_app_utility.hpp">
+      <Filter>Header files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\srs_core.hpp">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\srs_core_autofree.hpp">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\srs_core_mem_watch.hpp">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\core\srs_core_performance.hpp">
+      <Filter>Header files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_aac.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_buffer.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_codec.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_consts.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_error.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_file.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_flv.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_log.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_mp3.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_stream.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_ts.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\kernel\srs_kernel_utility.hpp">
+      <Filter>Header files\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_http_stack.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_protocol_buffer.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_protocol_json.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_protocol_kbps.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_raw_avc.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_amf0.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_handshake.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_io.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_msg_array.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_stack.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_rtmp_utility.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\protocol\srs_rtsp_stack.hpp">
+      <Filter>Header files\protocol</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\app\srs_app_async_call.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_bandwidth.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_caster_flv.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_config.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_conn.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_dvr.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_edge.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_empty.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_encoder.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_ffmpeg.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_forward.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_hds.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_heartbeat.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_hls.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_http_api.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_http_client.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_http_conn.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_http_hooks.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_http_static.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_http_stream.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_ingest.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_listener.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_log.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_mpegts_udp.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_pithy_print.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_recv_thread.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_refer.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_reload.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_rtmp_conn.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_rtsp.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_security.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_server.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_source.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_st.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_statistic.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_thread.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\app\srs_app_utility.cpp">
+      <Filter>Source files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\srs_core.cpp">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\srs_core_autofree.cpp">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\srs_core_mem_watch.cpp">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\core\srs_core_performance.cpp">
+      <Filter>Source files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_aac.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_buffer.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_codec.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_consts.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_error.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_file.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_flv.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_log.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_mp3.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_stream.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_ts.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\kernel\srs_kernel_utility.cpp">
+      <Filter>Source files\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_http_stack.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_protocol_buffer.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_protocol_json.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_protocol_kbps.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_raw_avc.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_amf0.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_handshake.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_io.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_msg_array.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_stack.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_rtmp_utility.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\protocol\srs_rtsp_stack.cpp">
+      <Filter>Source files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\main\srs_main_server.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
