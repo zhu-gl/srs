@@ -179,6 +179,7 @@
         </FileMasks>
         <TransferNewFilesOnly>true</TransferNewFilesOnly>
         <IncludeSubdirectories>true</IncludeSubdirectories>
+        <SelectedDirectories />
       </CustomActionBase>
       <CustomActionBase xsi:type="SourceTransferAction">
         <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>

@@ -472,7 +472,7 @@ int SrsIngester::ingest_add(std::string v, std::string i, struct SrsRequestParam
     char str_channel[32] = { 0 };
     sprintf(str_channel, "%d", channel_id);
     str_output = srs_string_replace(str_output, "[channel]", str_channel);
-    url_out = str_output;
+	url_out = str_channel;
 
     // ¡ä¡ä?¡§ffmpeg
     SrsFFMPEG* ffmpeg = new SrsFFMPEG(param.ffmpeg_bin);

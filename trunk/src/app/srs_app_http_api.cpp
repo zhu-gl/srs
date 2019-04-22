@@ -908,7 +908,7 @@ int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
 
     ss << SRS_JOBJECT_START
         << SRS_JFIELD_ERROR(ret) << SRS_JFIELD_CONT
-        << SRS_JFIELD_STR("url", url_out)
+        << SRS_JFIELD_STR("channel", url_out)
         << SRS_JOBJECT_END;
 
     srs_trace("http api ingest result: %d url: %s", ret, url_out.c_str());
