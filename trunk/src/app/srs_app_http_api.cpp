@@ -838,7 +838,7 @@ int SrsGoApiClients::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
     return ret;
 }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 #include <srs_app_server.hpp>
 #include <srs_app_ingest.hpp>
 int srs_api_response_text(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, std::string json)

@@ -95,7 +95,7 @@ SrsRtmpConn::SrsRtmpConn(SrsServer* svr, st_netfd_t c)
     mw_enabled = false;
     realtime = SRS_PERF_MIN_LATENCY_ENABLED;
     send_min_interval = 0;
-    tcp_nodelay = false;
+    tcp_nodelay = true;
     client_type = SrsRtmpConnUnknown;
     
     _srs_config->subscribe(this);
@@ -436,7 +436,7 @@ int SrsRtmpConn::stream_service_cycle()
         return ret;
     }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     if (!server->identify_ingest(atoi(req->stream.c_str()))) {
         srs_error("identify ingest not find. ret=%d", ERROR_USER_INGEST_NOT_FOUND);
         return ERROR_USER_INGEST_NOT_FOUND;
@@ -530,7 +530,7 @@ int SrsRtmpConn::stream_service_cycle()
         case SrsRtmpConnPlay: {
             srs_verbose("start to play stream %s.", req->stream.c_str());
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
             if ((ret = server->ingest_active(req)) != ERROR_SUCCESS) {
                 srs_error("ingest to active failed. ret=%d", ret);
                 return ret;
@@ -561,7 +561,7 @@ int SrsRtmpConn::stream_service_cycle()
                 return ret;
             }
             
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
             ret = publishing(source);
             if (ERROR_USER_NO_CONSUMER == ret) {
                 srs_trace("publish id: %d has no consumer stop ingest", source->source_id());

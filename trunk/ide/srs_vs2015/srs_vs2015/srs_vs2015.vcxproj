@@ -135,6 +135,7 @@
     <ClInclude Include="..\..\..\src\protocol\srs_rtmp_stack.hpp" />
     <ClInclude Include="..\..\..\src\protocol\srs_rtmp_utility.hpp" />
     <ClInclude Include="..\..\..\src\protocol\srs_rtsp_stack.hpp" />
+    <ClInclude Include="srs_auto_headers.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\app\srs_app_async_call.cpp" />

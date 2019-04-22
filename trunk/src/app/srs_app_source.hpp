@@ -414,7 +414,7 @@ public:
 class SrsSource : public ISrsReloadHandler
 {
 private:
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     static std::map<int, SrsSource*> pool;
     int channel_;
 #else
@@ -429,7 +429,7 @@ public:
     */
     static int fetch_or_create(SrsRequest* r, ISrsSourceHandler* h, SrsSource** pps);
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     static void remove(int channel);
     int channel();
 #endif

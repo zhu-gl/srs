@@ -31,7 +31,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef SRS_AUTO_INGEST
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 #include <map>
 #endif
 #include <vector>
@@ -43,7 +43,7 @@ class SrsFFMPEG;
 class SrsConfDirective;
 class SrsPithyPrint;
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 class SrsRequest;
 
 typedef struct SrsIngestParam {
@@ -75,7 +75,7 @@ class SrsIngesterFFMPEG
 private:
     std::string vhost;
     std::string id;
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     int channel;
     bool ff_active;
     SrsRequestParam req_param;
@@ -86,7 +86,7 @@ public:
     SrsIngesterFFMPEG();
     virtual ~SrsIngesterFFMPEG();
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::string out_url();
     unsigned int channel_out();
     void active(bool b_active);
@@ -94,7 +94,7 @@ public:
 #endif
 
 public:
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     virtual int initialize(SrsFFMPEG* ff, std::string v, std::string i, SrsRequestParam& pm, unsigned int chl);
 #else
     virtual int initialize(SrsFFMPEG* ff, std::string v, std::string i);
@@ -103,7 +103,7 @@ public:
     virtual std::string uri();
     // the alive in ms.
     virtual int alive();
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     virtual bool equals(std::string v, std::string i, SrsRequestParam& pm);
 #endif
     virtual bool equals(std::string v, std::string i);
@@ -124,7 +124,7 @@ public:
 class SrsIngester : public ISrsReusableThreadHandler, public ISrsReloadHandler
 {
 private:
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsIngesterFFMPEG*> ingesters;
     std::map<std::string, SrsIngestParam> ingesters_config;
 
@@ -141,7 +141,7 @@ public:
     virtual ~SrsIngester();
 public:
     virtual void dispose();
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     int ingest_active(SrsRequest* req);
     void ingest_unactive(SrsRequest* req);
 

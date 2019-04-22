@@ -250,6 +250,10 @@ int SrsFFMPEG::start()
     // The first argument, by convention, should point to 
     // the filename associated  with  the file being executed.
     params.push_back(ffmpeg);
+#ifdef __INGEST_DYNAMIC__
+    params.push_back("-rtsp_transport");
+    params.push_back("tcp");
+#endif
     
     // input params
     if (!_iparams.empty()) {

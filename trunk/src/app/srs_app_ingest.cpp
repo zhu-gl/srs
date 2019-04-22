@@ -42,7 +42,7 @@ using namespace std;
 
 SrsIngesterFFMPEG::SrsIngesterFFMPEG()
 {
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     channel = -1;
     ff_active = false;
 #endif
@@ -54,7 +54,7 @@ SrsIngesterFFMPEG::~SrsIngesterFFMPEG()
     srs_freep(ffmpeg);
 }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 std::string SrsIngesterFFMPEG::out_url()
 {
     if (ffmpeg) {
@@ -119,7 +119,7 @@ int SrsIngesterFFMPEG::alive()
     return (int)(srs_get_system_time_ms() - starttime);
 }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 bool SrsIngesterFFMPEG::equals(std::string v, std::string i, SrsRequestParam& pm)
 {
     return vhost == v && id == i
@@ -160,7 +160,7 @@ void SrsIngesterFFMPEG::fast_stop()
 
 SrsIngester::SrsIngester()
 {
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     channel_stream = 0;
     channel_file = 0;
 #endif
@@ -218,7 +218,7 @@ int SrsIngester::parse_ingesters(SrsConfDirective* vhost)
     return ret;
 }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 int SrsIngester::parse_engines(SrsConfDirective* vhost, SrsConfDirective* ingest)
 {
     int ret = ERROR_SUCCESS;
@@ -362,7 +362,7 @@ int SrsIngester::parse_engines(SrsConfDirective* vhost, SrsConfDirective* ingest
 void SrsIngester::dispose()
 {
     // first, use fast stop to notice all FFMPEG to quit gracefully.
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsIngesterFFMPEG*>::iterator it;
     for (it = ingesters.begin(); it != ingesters.end(); ++it) {
         SrsIngesterFFMPEG* ingester = it->second;
@@ -382,7 +382,7 @@ void SrsIngester::dispose()
     stop();
 }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 #include <srs_rtmp_stack.hpp>
 int SrsIngester::ingest_active(SrsRequest* req)
 {
@@ -498,7 +498,6 @@ int SrsIngester::ingest_add(std::string v, std::string i, struct SrsRequestParam
         log_file += ".log";
     }
 
-    str_input = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
     ffmpeg->initialize(str_input, str_output, log_file);
     ffmpeg->set_oformat("flv");
     ffmpeg->set_iparams("");
@@ -551,18 +550,19 @@ int SrsIngester::cycle()
 {
     int ret = ERROR_SUCCESS;
     
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsIngesterFFMPEG*>::iterator it;
     for (it = ingesters.begin(); it != ingesters.end(); ++it) {
         SrsIngesterFFMPEG* ingester = it->second;
+
+        if (!ingester->active()) {
+            continue;
+        }
 #else
     std::vector<SrsIngesterFFMPEG*>::iterator it;
     for (it = ingesters.begin(); it != ingesters.end(); ++it) {
         SrsIngesterFFMPEG* ingester = *it;
 #endif
-        if (!ingester->active()) {
-            continue;
-        }
         
         // start all ffmpegs.
         if ((ret = ingester->start()) != ERROR_SUCCESS) {
@@ -589,7 +589,7 @@ void SrsIngester::on_thread_stop()
 
 void SrsIngester::clear_engines()
 {
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsIngesterFFMPEG*>::iterator it;
 
     for (it = ingesters.begin(); it != ingesters.end(); ++it) {
@@ -755,7 +755,7 @@ void SrsIngester::show_ingest_log_message()
     
     // random choose one ingester to report.
     int index = rand() % (int)ingesters.size();
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     SrsIngesterFFMPEG* ingester = NULL;
     std::map<int, SrsIngesterFFMPEG*>::iterator iter;
     for (iter = ingesters.begin(); iter != ingesters.end(); ++iter) {
@@ -767,7 +767,7 @@ void SrsIngester::show_ingest_log_message()
         --index;
     }
     
-    if (!ingester) {
+    if (!ingester || !ingester->active()) {
         return;
     }
 #else
@@ -799,7 +799,7 @@ int SrsIngester::on_reload_vhost_removed(string vhost)
 {
     int ret = ERROR_SUCCESS;
     
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsIngesterFFMPEG*>::iterator it;
     std::vector<int> ary_remove;
 
@@ -825,14 +825,14 @@ int SrsIngester::on_reload_vhost_removed(string vhost)
         srs_freep(ingester);
         
         // remove the item from ingesters.
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
         ary_remove.push_back(it->first);
 #else
         it = ingesters.erase(it);
 #endif
     }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::vector<int>::iterator iter;
     for (iter = ary_remove.begin(); iter != ary_remove.end(); ++iter) {
         ingesters.erase(*iter);
@@ -846,7 +846,7 @@ int SrsIngester::on_reload_ingest_removed(string vhost, string ingest_id)
 {
     int ret = ERROR_SUCCESS;
     
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsIngesterFFMPEG*>::iterator it;
     std::vector<int> ary_remove;
 
@@ -872,14 +872,14 @@ int SrsIngester::on_reload_ingest_removed(string vhost, string ingest_id)
         srs_freep(ingester);
         
         // remove the item from ingesters.
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
         ary_remove.push_back(it->first);
 #else
         it = ingesters.erase(it);
 #endif
     }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::vector<int>::iterator iter;
     for (iter = ary_remove.begin(); iter != ary_remove.end(); ++iter) {
         ingesters.erase(*iter);

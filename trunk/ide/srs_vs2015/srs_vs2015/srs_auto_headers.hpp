@@ -41,6 +41,8 @@
 #undef SRS_AUTO_INFO
 #define SRS_AUTO_TRACE
 
+#define __INGEST_DYNAMIC__
+
 #define SRS_AUTO_PREFIX "/usr/local/srs"
 
 #define SRS_AUTO_CONSTRIBUTORS "\

@@ -739,7 +739,7 @@ ISrsSourceHandler::~ISrsSourceHandler()
 {
 }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 std::map<int, SrsSource*> SrsSource::pool;
 #else
 std::map<std::string, SrsSource*> SrsSource::pool;
@@ -749,7 +749,7 @@ int SrsSource::fetch_or_create(SrsRequest* r, ISrsSourceHandler* h, SrsSource** 
 {
     int ret = ERROR_SUCCESS;
     
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     int channel = atoi(r->stream.c_str());
     if (channel < 0) {
         srs_error("fetch_or_create error channel: %s", r->stream.c_str());
@@ -804,7 +804,7 @@ int SrsSource::fetch_or_create(SrsRequest* r, ISrsSourceHandler* h, SrsSource** 
     return ret;
 }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 void SrsSource::remove(int channel)
 {
     if (channel < 0) {
@@ -837,7 +837,7 @@ SrsSource* SrsSource::fetch(SrsRequest* r)
 {
     SrsSource* source = NULL;
     
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 #else
     string stream_url = r->get_stream_url();
     if (pool.find(stream_url) == pool.end()) {
@@ -857,7 +857,7 @@ SrsSource* SrsSource::fetch(SrsRequest* r)
 
 void SrsSource::dispose_all()
 {
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsSource*>::iterator it;
 #else
     std::map<std::string, SrsSource*>::iterator it;
@@ -884,7 +884,7 @@ int SrsSource::do_cycle_all()
 {
     int ret = ERROR_SUCCESS;
     
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsSource*>::iterator it;
 #else
     std::map<std::string, SrsSource*>::iterator it;
@@ -927,7 +927,7 @@ int SrsSource::do_cycle_all()
 
 void SrsSource::destroy()
 {
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     std::map<int, SrsSource*>::iterator it;
 #else
     std::map<std::string, SrsSource*>::iterator it;
@@ -1031,7 +1031,7 @@ SrsSource::SrsSource()
     hds = new SrsHds(this);
 #endif
     
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     channel_ = -1;
 #endif
 
@@ -1852,7 +1852,7 @@ int SrsSource::on_audio_imp(SrsSharedPtrMessage* msg)
     
     // copy to all consumer
     if (!drop_for_reduce) {
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
         if (consumers.size() == 0) {
             srs_trace("on audio publish has not consumers return");
             return ERROR_USER_NO_CONSUMER;
@@ -2074,7 +2074,7 @@ int SrsSource::on_video_imp(SrsSharedPtrMessage* msg)
     
     // copy to all consumer
     if (!drop_for_reduce) {
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
         if (consumers.size() == 0) {
             srs_trace("on video publish has not consumers return");
             return ERROR_USER_NO_CONSUMER;

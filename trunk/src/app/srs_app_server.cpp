@@ -566,7 +566,7 @@ void SrsServer::dispose()
 #endif
 }
 
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 int SrsServer::ingest_active(SrsRequest* req)
 {
     if (!ingester) {
@@ -861,7 +861,7 @@ int SrsServer::http_handle()
     if ((ret = http_api_mux->handle("/api/v1/clients/", new SrsGoApiClients())) != ERROR_SUCCESS) {
         return ret;
     }
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
     if ((ret = http_api_mux->handle("/api/v1/ingest", new SrsGoApiIngest(this))) != ERROR_SUCCESS) {
         return ret;
     }

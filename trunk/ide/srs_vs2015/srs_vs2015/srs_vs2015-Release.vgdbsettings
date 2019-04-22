@@ -132,23 +132,17 @@
       <EnableNonStopMode>false</EnableNonStopMode>
     </AdditionalGDBSettings>
     <LaunchGDBSettings xsi:type="GDBLaunchParametersNewInstance">
-      <GDBEnvironment>
-        <Records>
-          <Record>
-            <VariableName>LANG</VariableName>
-            <Value>en_US.UTF-8</Value>
-          </Record>
-        </Records>
-      </GDBEnvironment>
-      <DebuggedProgram>$(TargetPath)</DebuggedProgram>
+      <DebuggedProgram>$(BuildDir)/../../../objs/$(TargetFileName)</DebuggedProgram>
       <GDBServerPort>2000</GDBServerPort>
       <ProgramArguments />
     </LaunchGDBSettings>
     <GenerateCtrlBreakInsteadOfCtrlC>false</GenerateCtrlBreakInsteadOfCtrlC>
+    <DeploymentTargetPath />
     <X11WindowMode>Local</X11WindowMode>
     <KeepConsoleAfterExit>false</KeepConsoleAfterExit>
     <RunGDBUnderSudo>false</RunGDBUnderSudo>
     <DeploymentMode>Auto</DeploymentMode>
+    <LdLibraryPath />
     <DeployWhenLaunchedWithoutDebugging>true</DeployWhenLaunchedWithoutDebugging>
   </Debug>
   <CustomBuild>
@@ -167,9 +161,57 @@
         </FileMasks>
         <TransferNewFilesOnly>true</TransferNewFilesOnly>
         <IncludeSubdirectories>true</IncludeSubdirectories>
+        <SelectedDirectories />
+      </CustomActionBase>
+      <CustomActionBase xsi:type="SourceTransferAction">
+        <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
+        <RemoteHost>
+          <HostName>BuildMachine</HostName>
+          <Transport>BuiltinShortcut</Transport>
+          <UserName />
+        </RemoteHost>
+        <LocalDirectory>$(ProjectDir)\..\..\..\objs</LocalDirectory>
+        <RemoteDirectory>$(BuildDir)/../../../objs</RemoteDirectory>
+        <FileMasks>
+          <string>*.*</string>
+          <string>*</string>
+        </FileMasks>
+        <TransferNewFilesOnly>true</TransferNewFilesOnly>
+        <IncludeSubdirectories>true</IncludeSubdirectories>
+      </CustomActionBase>
+      <CustomActionBase xsi:type="SourceTransferAction">
+        <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
+        <RemoteHost>
+          <HostName>BuildMachine</HostName>
+          <Transport>BuiltinShortcut</Transport>
+          <UserName />
+        </RemoteHost>
+        <LocalDirectory>$(ProjectDir)\..\..\..\conf</LocalDirectory>
+        <RemoteDirectory>$(BuildDir)/../../../conf</RemoteDirectory>
+        <FileMasks>
+          <string>*.*</string>
+        </FileMasks>
+        <TransferNewFilesOnly>true</TransferNewFilesOnly>
+        <IncludeSubdirectories>true</IncludeSubdirectories>
+        <SelectedDirectories />
       </CustomActionBase>
     </PreBuildActions>
-    <PostBuildActions />
+    <PostBuildActions>
+      <CustomActionBase xsi:type="CommandLineAction">
+        <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
+        <RemoteHost>
+          <HostName>BuildMachine</HostName>
+          <Transport>BuiltinShortcut</Transport>
+          <UserName />
+        </RemoteHost>
+        <Command>cp</Command>
+        <Arguments>$(TargetPath)  ../../../objs/$(TargetFileName)</Arguments>
+        <WorkingDirectory>$(BuildDir)</WorkingDirectory>
+        <Environment>
+          <Records />
+        </Environment>
+      </CustomActionBase>
+    </PostBuildActions>
     <PreCleanActions />
     <PostCleanActions />
   </CustomBuild>

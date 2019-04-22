@@ -294,7 +294,7 @@ private:
      * to stop all ingesters, cleanup HLS and dvr.
      */
     virtual void dispose();
-#if 1//def __SRS_DYNAMIC__
+#ifdef __INGEST_DYNAMIC__
 public:
     int ingest_active(SrsRequest* req);
     void ingest_unactive(SrsRequest* req);

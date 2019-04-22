@@ -257,6 +257,9 @@
     <ClInclude Include="..\..\..\src\protocol\srs_rtsp_stack.hpp">
       <Filter>Header files\protocol</Filter>
     </ClInclude>
+    <ClInclude Include="srs_auto_headers.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\app\srs_app_async_call.cpp">
