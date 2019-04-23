@@ -71,6 +71,10 @@ public:
     int connection_cid;
     int nb_clients;
     uint64_t nb_frames;
+#ifdef __INGEST_DYNAMIC__
+    int width;
+    int height;
+#endif
 public:
     /**
     * stream total kbps.
@@ -163,9 +167,15 @@ public:
     /**
     * when got video info for stream.
     */
-    virtual int on_video_info(SrsRequest* req, 
+#ifdef __INGEST_DYNAMIC__
+    virtual int on_video_info(SrsRequest* req,
+        SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level, int width, int height
+    );
+#else
+    virtual int on_video_info(SrsRequest* req,
         SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level
     );
+#endif
     /**
     * when got audio info for stream.
     */

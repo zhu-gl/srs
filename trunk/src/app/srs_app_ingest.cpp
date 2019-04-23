@@ -57,11 +57,9 @@ SrsIngesterFFMPEG::~SrsIngesterFFMPEG()
 #ifdef __INGEST_DYNAMIC__
 std::string SrsIngesterFFMPEG::out_url()
 {
-    if (ffmpeg) {
-        return ffmpeg->output();
-    }
-
-    return "";
+    char sz_channel[32] = { 0 };
+    sprintf(sz_channel, "%d", channel);
+    return sz_channel;
 }
 
 unsigned int SrsIngesterFFMPEG::channel_out()
@@ -123,8 +121,7 @@ int SrsIngesterFFMPEG::alive()
 bool SrsIngesterFFMPEG::equals(std::string v, std::string i, SrsRequestParam& pm)
 {
     return vhost == v && id == i
-        && (pm.ip == req_param.ip) && (pm.channel == req_param.channel)
-        && (pm.starttime == req_param.starttime) && (pm.endtime == req_param.endtime);
+        && (pm.ip == req_param.ip) && (pm.channel == req_param.channel);
 }
 #endif
 
@@ -443,15 +440,14 @@ int SrsIngester::ingest_add(std::string v, std::string i, struct SrsRequestParam
     else {
         pm->starttime = "";
         pm->endtime = "";
-    }
 
-    // 2¨¦?¨°¨º?¡¤?¡ä??¨²
-    std::map<int, SrsIngesterFFMPEG*>::iterator iter_ing;
-    for (iter_ing = ingesters.begin(); iter_ing != ingesters.end(); ++iter_ing) {
-        if (iter_ing->second->equals(v, i, *pm)) {
-            url_out = iter_ing->second->out_url();
-            srs_trace("ingest add already exist vhost: %s app: %s key: %s", v.c_str(), i.c_str(), str_key.c_str());
-            return ERROR_SUCCESS;
+        std::map<int, SrsIngesterFFMPEG*>::iterator iter_ing;
+        for (iter_ing = ingesters.begin(); iter_ing != ingesters.end(); ++iter_ing) {
+            if (iter_ing->second->equals(v, i, *pm)) {
+                url_out = iter_ing->second->out_url();
+                srs_trace("ingest add already exist vhost: %s app: %s key: %s", v.c_str(), i.c_str(), str_key.c_str());
+                return ERROR_SUCCESS;
+            }
         }
     }
 

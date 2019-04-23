@@ -1033,6 +1033,8 @@ SrsSource::SrsSource()
     
 #ifdef __INGEST_DYNAMIC__
     channel_ = -1;
+    vdo_width = 0;
+    vdo_height = 0;
 #endif
 
     cache_metadata = cache_sh_video = cache_sh_audio = NULL;
@@ -1597,9 +1599,15 @@ int SrsSource::on_meta_data(SrsCommonMessage* msg, SrsOnMetaDataPacket* metadata
     std::stringstream ss;
     if ((prop = metadata->metadata->ensure_property_number("width")) != NULL) {
         ss << ", width=" << (int)prop->to_number();
+#ifdef __INGEST_DYNAMIC__
+        vdo_width = (int)prop->to_number();
+#endif
     }
     if ((prop = metadata->metadata->ensure_property_number("height")) != NULL) {
         ss << ", height=" << (int)prop->to_number();
+#ifdef __INGEST_DYNAMIC__
+        vdo_height = (int)prop->to_number();
+#endif
     }
     if ((prop = metadata->metadata->ensure_property_number("videocodecid")) != NULL) {
         ss << ", vcodec=" << (int)prop->to_number();
@@ -2011,9 +2019,15 @@ int SrsSource::on_video_imp(SrsSharedPtrMessage* msg)
         
         // when got video stream info.
         SrsStatistic* stat = SrsStatistic::instance();
+#ifdef __INGEST_DYNAMIC__
+        if ((ret = stat->on_video_info(_req, SrsCodecVideoAVC, codec.avc_profile, codec.avc_level, vdo_width, vdo_height)) != ERROR_SUCCESS) {
+            return ret;
+        }
+#else
         if ((ret = stat->on_video_info(_req, SrsCodecVideoAVC, codec.avc_profile, codec.avc_level)) != ERROR_SUCCESS) {
             return ret;
         }
+#endif
         
         srs_trace("%dB video sh,  codec(%d, profile=%s, level=%s, %dx%d, %dkbps, %dfps, %ds)",
             msg->size, codec.video_codec_id,

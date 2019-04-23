@@ -23,6 +23,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <srs_app_statistic.hpp>
 
+#ifdef __INGEST_DYNAMIC__
+#include <stdlib.h>
+#endif
+
 #include <unistd.h>
 #include <sstream>
 using namespace std;
@@ -91,7 +95,9 @@ int SrsStatisticVhost::dumps(stringstream& ss)
 
 SrsStatisticStream::SrsStatisticStream()
 {
+#ifndef __INGEST_DYNAMIC__
     id = srs_generate_id();
+#endif // !__INGEST_DYNAMIC__
     vhost = NULL;
     active = false;
     connection_cid = -1;
@@ -100,6 +106,11 @@ SrsStatisticStream::SrsStatisticStream()
     vcodec = SrsCodecVideoReserved;
     avc_profile = SrsAvcProfileReserved;
     avc_level = SrsAvcLevelReserved;
+
+#ifdef __INGEST_DYNAMIC__
+    width = 0;
+    height = 0;
+#endif
     
     has_audio = false;
     acodec = SrsCodecAudioReserved1;
@@ -148,6 +159,10 @@ int SrsStatisticStream::dumps(stringstream& ss)
         ss  << SRS_JFIELD_NAME("video") << SRS_JOBJECT_START
                 << SRS_JFIELD_STR("codec", srs_codec_video2str(vcodec)) << SRS_JFIELD_CONT
                 << SRS_JFIELD_STR("profile", srs_codec_avc_profile2str(avc_profile)) << SRS_JFIELD_CONT
+#ifdef __INGEST_DYNAMIC__
+                << SRS_JFIELD_STR("width", width) << SRS_JFIELD_CONT
+                << SRS_JFIELD_STR("height", height) << SRS_JFIELD_CONT
+#endif
                 << SRS_JFIELD_STR("level", srs_codec_avc_level2str(avc_level))
                 << SRS_JOBJECT_END
             << SRS_JFIELD_CONT;
@@ -295,8 +310,13 @@ SrsStatisticClient* SrsStatistic::find_client(int cid)
     return NULL;
 }
 
+#ifdef __INGEST_DYNAMIC__
+int SrsStatistic::on_video_info(SrsRequest* req,
+    SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level, int width, int height
+#else
 int SrsStatistic::on_video_info(SrsRequest* req, 
     SrsCodecVideo vcodec, SrsAvcProfile avc_profile, SrsAvcLevel avc_level
+#endif
 ) {
     int ret = ERROR_SUCCESS;
     
@@ -307,6 +327,10 @@ int SrsStatistic::on_video_info(SrsRequest* req,
     stream->vcodec = vcodec;
     stream->avc_profile = avc_profile;
     stream->avc_level = avc_level;
+#ifdef __INGEST_DYNAMIC__
+    stream->width = width;
+    stream->height = height;
+#endif
     
     return ret;
 }
@@ -355,6 +379,22 @@ void SrsStatistic::on_stream_close(SrsRequest* req)
     SrsStatisticStream* stream = create_stream(vhost, req);
 
     stream->close();
+
+#ifdef __INGEST_DYNAMIC__
+    int channel = atoi(req->stream.c_str());
+    if ((channel & 0xFFFF0000) > 0 && stream->id == channel) {
+        for (std::map<int, SrsStatisticClient*>::iterator iter = clients.begin(); iter != clients.end(); ++iter) {
+            if (iter->second->stream == stream) {
+                iter->second->stream = NULL;
+            }
+        }
+
+        std::string str_url = req->get_stream_url();
+        rstreams.erase(str_url);
+        streams.erase(channel);
+        srs_freep(stream);
+    }
+#endif
 }
 
 int SrsStatistic::on_client(int id, SrsRequest* req, SrsConnection* conn, SrsRtmpConnType type)
@@ -394,13 +434,24 @@ void SrsStatistic::on_disconnect(int id)
 
     SrsStatisticClient* client = it->second;
     SrsStatisticStream* stream = client->stream;
+#ifndef __INGEST_DYNAMIC__
     SrsStatisticVhost* vhost = stream->vhost;
+#endif // !__INGEST_DYNAMIC__
     
     srs_freep(client);
     clients.erase(it);
     
+#ifdef __INGEST_DYNAMIC__
+    if (stream) {
+        stream->nb_clients--;
+        if (stream->vhost) {
+            stream->vhost->nb_clients--;
+        }        
+    }
+#else
     stream->nb_clients--;
     vhost->nb_clients--;
+#endif
 }
 
 void SrsStatistic::kbps_add_delta(SrsConnection* conn)
@@ -418,8 +469,15 @@ void SrsStatistic::kbps_add_delta(SrsConnection* conn)
     // add delta of connection to kbps.
     // for next sample() of server kbps can get the stat.
     kbps->add_delta(conn);
+#ifdef __INGEST_DYNAMIC__
+    if (client->stream) {
+        client->stream->kbps->add_delta(conn);
+        client->stream->vhost->kbps->add_delta(conn);
+    }
+#else
     client->stream->kbps->add_delta(conn);
     client->stream->vhost->kbps->add_delta(conn);
+#endif // !__INGEST_DYNAMIC__
     
     // cleanup the delta.
     conn->cleanup();
@@ -549,6 +607,9 @@ SrsStatisticStream* SrsStatistic::create_stream(SrsStatisticVhost* vhost, SrsReq
     // create stream if not exists.
     if (rstreams.find(url) == rstreams.end()) {
         stream = new SrsStatisticStream();
+#ifdef __INGEST_DYNAMIC__
+        stream->id = atoi(req->stream.c_str());
+#endif
         stream->vhost = vhost;
         stream->stream = req->stream;
         stream->app = req->app;

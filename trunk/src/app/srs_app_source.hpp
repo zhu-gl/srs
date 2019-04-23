@@ -417,6 +417,9 @@ private:
 #ifdef __INGEST_DYNAMIC__
     static std::map<int, SrsSource*> pool;
     int channel_;
+
+    int vdo_width;
+    int vdo_height;
 #else
     static std::map<std::string, SrsSource*> pool;
 #endif

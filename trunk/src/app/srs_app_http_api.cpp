@@ -205,6 +205,9 @@ int SrsGoApiV1::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
             << SRS_JFIELD_STR("vhosts", "manage all vhosts or specified vhost") << SRS_JFIELD_CONT
             << SRS_JFIELD_STR("streams", "manage all streams or specified stream") << SRS_JFIELD_CONT
             << SRS_JFIELD_STR("clients", "manage all clients or specified client, default query top 10 clients") << SRS_JFIELD_CONT
+#ifdef __INGEST_DYNAMIC__
+            << SRS_JFIELD_STR("ingest", "add new ingest and return the new rtmp channel") << SRS_JFIELD_CONT
+#endif
             << SRS_JFIELD_ORG("tests", SRS_JOBJECT_START)
                 << SRS_JFIELD_STR("requests", "show the request info") << SRS_JFIELD_CONT
                 << SRS_JFIELD_STR("errors", "always return an error 100") << SRS_JFIELD_CONT
