@@ -844,21 +844,6 @@ int SrsGoApiClients::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
 #ifdef __INGEST_DYNAMIC__
 #include <srs_app_server.hpp>
 #include <srs_app_ingest.hpp>
-int srs_api_response_text(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, std::string json)
-{
-    // no jsonp, directly response.
-    if (!r->is_jsonp()) {
-        SrsHttpHeader* h = w->header();
-
-        h->set_content_length(json.length());
-        h->set_content_type("text/html");
-
-        return w->write((char*)json.data(), (int)json.length());
-    }
-
-    return ERROR_USER_PARAM;
-}
-
 SrsGoApiIngest::SrsGoApiIngest(SrsServer* svr)
     : srs_svr(svr)
 {
@@ -885,7 +870,7 @@ int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
             << SRS_JOBJECT_END;
 
         srs_error("http api ingest error vhost: %s or app: %s", vhost.c_str(), ingest.c_str());
-        return srs_api_response_text(w, r, ss.str());
+        return srs_api_response(w, r, ss.str());
     }
 
     SrsRequestParam reqPM;
@@ -903,7 +888,7 @@ int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
 
         srs_error("http api ingest error param ip: %s channel: %s user: %s pass: %s",
             reqPM.ip.c_str(), reqPM.channel.c_str(), reqPM.username.c_str(), reqPM.password.c_str());
-        return srs_api_response_text(w, r, ss.str());
+        return srs_api_response(w, r, ss.str());
     }
 
     std::string url_out;
@@ -915,7 +900,7 @@ int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
         << SRS_JOBJECT_END;
 
     srs_trace("http api ingest result: %d url: %s", ret, url_out.c_str());
-    return srs_api_response_text(w, r, ss.str());
+    return srs_api_response(w, r, ss.str());
 }
 #endif
 
