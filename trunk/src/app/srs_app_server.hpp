@@ -296,12 +296,11 @@ private:
     virtual void dispose();
 #ifdef __INGEST_DYNAMIC__
 public:
-    int ingest_active(SrsRequest* req);
-    void ingest_unactive(SrsRequest* req);
+    bool ingest_active(SrsRequest* req);
+    bool ingest_unactive(SrsRequest* req);
 
-    int ingest_add(std::string v, std::string i, struct SrsRequestParam* pm, std::string& url_out);
-    bool identify_ingest(int id);
-    void ingest_remove(int id);
+    long ingest_add(struct SrsRequestParam* pm, std::string& out_channel);
+    bool ingest_identify(SrsRequest* req);
 #endif
 // server startup workflow, @see run_master()
 public:

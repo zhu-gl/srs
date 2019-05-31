@@ -48,6 +48,10 @@ private:
     // whether SIGTERM send but need to wait or SIGKILL.
     bool fast_stopped;
     pid_t pid;
+#ifdef __INGEST_DYNAMIC__
+    int reconnect;
+    int reconnect_max;
+#endif
 private:
     std::string engine_name;
     std::string log_file;
@@ -74,12 +78,22 @@ private:
     std::string                 oformat;
     std::string                 _output;
 public:
+#ifdef __INGEST_DYNAMIC__
+    SrsFFMPEG(std::string ffmpeg_bin, int max_con = 5);
+#else
     SrsFFMPEG(std::string ffmpeg_bin);
+#endif
     virtual ~SrsFFMPEG();
 public:
     virtual void set_iparams(std::string iparams);
     virtual void set_oformat(std::string format);
     virtual std::string output();
+
+#ifdef __INGEST_DYNAMIC__
+    virtual bool is_running();
+    virtual bool need_reconnect();
+    virtual void reconnect_count_reset();
+#endif
 public:
     virtual int initialize(std::string in, std::string out, std::string log);
     virtual int initialize_transcode(SrsConfDirective* engine);

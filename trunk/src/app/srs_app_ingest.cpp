@@ -36,6 +36,11 @@ using namespace std;
 #include <srs_kernel_utility.hpp>
 #include <srs_app_utility.hpp>
 
+#ifdef __INGEST_DYNAMIC__
+#include <srs_app_source.hpp>
+#include <srs_rtmp_utility.hpp>
+#endif
+
 // when error, ingester sleep for a while and retry.
 // ingest never sleep a long time, for we must start the stream ASAP.
 #define SRS_AUTO_INGESTER_SLEEP_US (int64_t)(3*1000*1000LL)
@@ -43,8 +48,9 @@ using namespace std;
 SrsIngesterFFMPEG::SrsIngesterFFMPEG()
 {
 #ifdef __INGEST_DYNAMIC__
-    channel = -1;
+    need_remove_ = false;
     ff_active = false;
+    n_channel = -1;
 #endif
     ffmpeg = NULL;
 }
@@ -55,22 +61,26 @@ SrsIngesterFFMPEG::~SrsIngesterFFMPEG()
 }
 
 #ifdef __INGEST_DYNAMIC__
-std::string SrsIngesterFFMPEG::out_url()
+std::string SrsIngesterFFMPEG::channel_out()
 {
-    char sz_channel[32] = { 0 };
-    sprintf(sz_channel, "%d", channel);
-    return sz_channel;
+    return channel_out_;
 }
 
-unsigned int SrsIngesterFFMPEG::channel_out()
+void SrsIngesterFFMPEG::active(bool enable)
 {
-    return channel;
+    if (!enable) {
+        ffmpeg->reconnect_count_reset();
+        if (n_channel > 0 && (n_channel & 0xFFFF0000) > 0) {
+            need_remove_ = true;
+        }
+    }
+
+    ff_active = enable;
 }
 
-void SrsIngesterFFMPEG::active(bool b_active)
+bool SrsIngesterFFMPEG::need_remove()
 {
-    srs_trace("Ingester: %d active: %d", channel, b_active);
-    ff_active = b_active;
+    return need_remove_;
 }
 
 bool SrsIngesterFFMPEG::active()
@@ -78,14 +88,14 @@ bool SrsIngesterFFMPEG::active()
     return ff_active;
 }
 
-int SrsIngesterFFMPEG::initialize(SrsFFMPEG* ff, std::string v, std::string i, SrsRequestParam& pm, unsigned int chl)
+int SrsIngesterFFMPEG::initialize(SrsFFMPEG* ff, std::string v, std::string i, std::string ip, std::string ch_in, std::string ch_out)
 {
     int ret = ERROR_SUCCESS;
 
-    srs_trace("src id: %s app: %s channel: %d", v.c_str(), i.c_str(), chl);
-
-    req_param = pm;
-    channel = chl;
+    ip_in_ = ip;
+    channel_in_ = ch_in;
+    channel_out_ = ch_out;
+    n_channel = atoi(channel_out_.c_str());
     ffmpeg = ff;
     vhost = v;
     id = i;
@@ -118,10 +128,9 @@ int SrsIngesterFFMPEG::alive()
 }
 
 #ifdef __INGEST_DYNAMIC__
-bool SrsIngesterFFMPEG::equals(std::string v, std::string i, SrsRequestParam& pm)
+bool SrsIngesterFFMPEG::equals(std::string v, std::string i, std::string ip, std::string ch_in)
 {
-    return vhost == v && id == i
-        && (pm.ip == req_param.ip) && (pm.channel == req_param.channel);
+    return vhost == v && id == i && (ip_in_ == ip) && (channel_in_ == ch_in);
 }
 #endif
 
@@ -137,6 +146,19 @@ bool SrsIngesterFFMPEG::equals(string v, string i)
 
 int SrsIngesterFFMPEG::start()
 {
+#ifdef __INGEST_DYNAMIC__
+    if (ffmpeg->is_running()) {
+        return ERROR_SUCCESS;
+    }
+
+    if (!(ffmpeg->need_reconnect())) {
+        std::string str_key = srs_generate_stream_url(vhost, "live", channel_out_);
+        SrsSource::close_source_client(str_key);
+        active(false);
+
+        return ERROR_SUCCESS;
+    }
+#endif
     return ffmpeg->start();
 }
 
@@ -226,7 +248,7 @@ int SrsIngester::parse_engines(SrsConfDirective* vhost, SrsConfDirective* ingest
 
     SrsIngestParam ingestPm;
     ingestPm.vhost = vhost->arg0();
-    ingestPm.name = ingest->arg0();
+    ingestPm.ingesttype = ingest->arg0();
     std::string input_type = _srs_config->get_ingest_input_type(ingest);
     if (srs_config_ingest_is_stream(input_type)) {
         ingestPm.input_type = 0x01;
@@ -238,6 +260,21 @@ int SrsIngester::parse_engines(SrsConfDirective* vhost, SrsConfDirective* ingest
         ret = ERROR_ENCODER_INPUT_TYPE;
         srs_error("invalid ingest=%s type=%s, ret=%d",
             ingest->arg0().c_str(), input_type.c_str(), ret);
+        return ret;
+    }
+
+    // get all engines.
+    std::vector<SrsConfDirective*> engines = _srs_config->get_transcode_engines(ingest);
+    if (engines.size() != 1) {
+        ret = ERROR_ENCODER_NO_OUTPUT;
+        srs_error("empty engines ret=%d", ret);
+        return ret;
+    }
+
+    ingestPm.output = _srs_config->get_engine_output(engines[0]);
+    if (ingestPm.output.empty()) {
+        ret = ERROR_ENCODER_NO_OUTPUT;
+        srs_error("empty output ret=%d", ret);
         return ret;
     }
 
@@ -255,20 +292,12 @@ int SrsIngester::parse_engines(SrsConfDirective* vhost, SrsConfDirective* ingest
         return ret;
     }
 
-    // get all engines.
-    std::vector<SrsConfDirective*> engines = _srs_config->get_transcode_engines(ingest);
-    if (engines.size() != 1) {
-        ret = ERROR_ENCODER_NO_OUTPUT;
-        srs_error("empty engines ret=%d", ret);
-        return ret;
-    }
-
-    ingestPm.output = _srs_config->get_engine_output(engines[0]);
-    if (ingestPm.ffmpeg_bin.empty()) {
-        ret = ERROR_ENCODER_NO_OUTPUT;
-        srs_error("empty output ret=%d", ret);
-        return ret;
-    }
+    bool b_enable = _srs_config->get_engine_enabled(engines[0]);
+    std::string vcodec = _srs_config->get_engine_vcodec(engines[0]);
+    std::string acodec = _srs_config->get_engine_acodec(engines[0]);
+	if (b_enable && !vcodec.empty() && !acodec.empty()) {
+        ingestPm.engine = engines[0];
+	}
 
     // get listen port
     std::string port;
@@ -282,12 +311,11 @@ int SrsIngester::parse_engines(SrsConfDirective* vhost, SrsConfDirective* ingest
     }
 
     ingestPm.output = srs_string_replace(ingestPm.output, "[port]", port);
-    //ingestPm.output = srs_string_replace(ingestPm.output, "[channel]", str_channel);
 
-    std::string str_key = ingestPm.vhost + "/" + ingestPm.name;
-    ingesters_config[str_key] = ingestPm;
+    std::string str_key = ingestPm.get_stream_url();
     srs_trace("ingest config add key: %s input: %s output: %s ffmpeg: %s", 
         str_key.c_str(), ingestPm.input.c_str(), ingestPm.output.c_str(), ingestPm.ffmpeg_bin.c_str());
+    ingesters_config[str_key] = ingestPm;
     return ret;
 }
 #else
@@ -360,7 +388,7 @@ void SrsIngester::dispose()
 {
     // first, use fast stop to notice all FFMPEG to quit gracefully.
 #ifdef __INGEST_DYNAMIC__
-    std::map<int, SrsIngesterFFMPEG*>::iterator it;
+    map_ingesters::iterator it;
     for (it = ingesters.begin(); it != ingesters.end(); ++it) {
         SrsIngesterFFMPEG* ingester = it->second;
 #else
@@ -381,56 +409,54 @@ void SrsIngester::dispose()
 
 #ifdef __INGEST_DYNAMIC__
 #include <srs_rtmp_stack.hpp>
-int SrsIngester::ingest_active(SrsRequest* req)
+long SrsIngester::ingest_active(SrsRequest* req)
 {
-    int channel = atoi(req->stream.c_str());
-    std::map<int, SrsIngesterFFMPEG*>::iterator it = ingesters.find(channel);
+    map_ingesters::iterator it = ingesters.find(req->get_stream_url());
     if (it == ingesters.end()) {
-        srs_error("ingest active error to find channel: %d", channel);
+        srs_error("ingest: %s active error to find", req->get_stream_url().c_str());
         return ERROR_USER_INGEST_NOT_FOUND;
     }
 
-    srs_trace("ingest active channel: %d", channel);
+    srs_trace("ingest: %s actived.", req->get_stream_url().c_str());
     it->second->active(true);
     return ERROR_SUCCESS;
 }
 
-void SrsIngester::ingest_unactive(SrsRequest* req)
+bool SrsIngester::ingest_unactive(SrsRequest* req)
 {
-    int channel = atoi(req->stream.c_str());
-    std::map<int, SrsIngesterFFMPEG*>::iterator it = ingesters.find(channel);
+    map_ingesters::iterator it = ingesters.find(req->get_stream_url());
     if (it == ingesters.end()) {
-        srs_error("ingest unactive error to find channel: %d", channel);
-        return;
+        srs_error("ingest: %s unactive error to find", req->get_stream_url().c_str());
+        return false;
     }
 
-    srs_trace("ingest unactive channel: %d", channel);
+    srs_trace("ingest: %s unactived", req->get_stream_url().c_str());
     it->second->active(false);
-    it->second->stop();
-
-    ingest_remove(channel);
+    return true;
 }
 
-int SrsIngester::ingest_add(std::string v, std::string i, struct SrsRequestParam* pm, std::string& url_out)
+long SrsIngester::ingest_add(struct SrsRequestParam* pm, std::string& out_channel)
 {
-    if (i.empty() || v.empty() || !pm) {
-        srs_error("ingest add error param vhost: %s app: %s", v.c_str(), i.c_str());
+    if (!pm) {
+        srs_error("ingest add error param.");
         return ERROR_USER_PARAM;
     }
 
-    std::string str_key = v + "/" + i;
-    std::map<std::string, SrsIngestParam>::iterator iter = ingesters_config.find(str_key);
+    std::string str_key = pm->get_stream_url();
+    map_ingesters_config::iterator iter = ingesters_config.find(str_key);
     if (iter == ingesters_config.end()) {
-        srs_error("ingest add error to find vhost: %s app: %s key: %s", v.c_str(), i.c_str(), str_key.c_str());
-        return ERROR_USER_INGEST_NOT_FOUND;
+        srs_error("ingest add error to find key: %s", str_key.c_str());
+        return ERROR_USER_HAS_NO_CONFIG;
     }
 
-    SrsIngestParam& param = iter->second;
+    SrsIngestParam& param = iter->second;    
     std::string str_output = param.output;
     std::string str_input = param.input;
+
     if (0x02 == param.input_type) {
+        // 回播
         if (pm->starttime.empty() || pm->endtime.empty()) {
-            srs_error("ingest add error empty time vhost: %s app: %s key: %s", v.c_str(), i.c_str(), str_key.c_str());
+            srs_error("ingest add error empty time key: %s", str_key.c_str());
             return ERROR_USER_PARAM_TIME;
         }
 
@@ -438,14 +464,15 @@ int SrsIngester::ingest_add(std::string v, std::string i, struct SrsRequestParam
         str_input = srs_string_replace(str_input, "[endtime]", pm->endtime);
     }
     else {
+        // 直播
         pm->starttime = "";
         pm->endtime = "";
 
-        std::map<int, SrsIngesterFFMPEG*>::iterator iter_ing;
+        map_ingesters::iterator iter_ing;
         for (iter_ing = ingesters.begin(); iter_ing != ingesters.end(); ++iter_ing) {
-            if (iter_ing->second->equals(v, i, *pm)) {
-                url_out = iter_ing->second->out_url();
-                srs_trace("ingest add already exist vhost: %s app: %s key: %s", v.c_str(), i.c_str(), str_key.c_str());
+            if (iter_ing->second->equals(pm->vhost, pm->ingesttype, pm->ip, pm->channel)) {
+                out_channel = iter_ing->second->channel_out();
+                srs_trace("ingest add already exist key: %s", str_key.c_str());
                 return ERROR_SUCCESS;
             }
         }
@@ -457,26 +484,31 @@ int SrsIngester::ingest_add(std::string v, std::string i, struct SrsRequestParam
     str_input = srs_string_replace(str_input, "[channel]", pm->channel);
 
     int channel_id = -1;
-    unsigned short& channel = (1 == param.input_type) ? channel_stream : channel_file;
+    char sz_channel[32] = { 0 };
+    unsigned short& channel_use = (1 == param.input_type) ? channel_stream : channel_file;
     while (channel_id < 0) {
-        channel_id = (int)(++channel) | ((1 == param.input_type) ? 0 : 0x00010000);
-        if (ingesters.find(channel_id) != ingesters.end()) {
+        channel_id = (int)(++channel_use) | ((1 == param.input_type) ? 0 : 0x00010000);
+        if (0 == channel_use) {
+            channel_id = -1;
+			continue;
+        }
+
+        sprintf(sz_channel, "%d", channel_id);
+        if (ingesters.find(sz_channel) != ingesters.end()) {
             channel_id = -1;
         }
     }
 
-    char str_channel[32] = { 0 };
-    sprintf(str_channel, "%d", channel_id);
-    str_output = srs_string_replace(str_output, "[channel]", str_channel);
-	url_out = str_channel;
+    str_output = srs_string_replace(str_output, "[channel]", sz_channel);
+    out_channel = sz_channel;
 
-    // ′′?¨ffmpeg
-    SrsFFMPEG* ffmpeg = new SrsFFMPEG(param.ffmpeg_bin);
+    // 创建 ffmpeg
+    SrsFFMPEG* ffmpeg = new SrsFFMPEG(param.ffmpeg_bin, (0x02 == param.input_type) ? 1 : 3);
     SrsIngesterFFMPEG* ingester = new SrsIngesterFFMPEG();
     if (!ffmpeg || !ingester) {
         srs_freep(ffmpeg);
         srs_freep(ingester);
-        srs_error("ingest add error alloc memory vhost: %s app: %s key: %s id: %d", v.c_str(), i.c_str(), str_key.c_str(), channel_id);
+        srs_error("ingest add error alloc memory key: %s id: %d", str_key.c_str(), channel_id);
         return ERROR_USER_ALLOC_MEMORY;
     }
 
@@ -488,51 +520,48 @@ int SrsIngester::ingest_add(std::string v, std::string i, struct SrsRequestParam
         log_file += "-";
         log_file += param.vhost;
         log_file += "-";
-        log_file += param.name;
+        log_file += param.ingesttype;
         log_file += "-";
-        log_file += str_channel;
+        log_file += sz_channel;
         log_file += ".log";
     }
 
     ffmpeg->initialize(str_input, str_output, log_file);
     ffmpeg->set_oformat("flv");
     ffmpeg->set_iparams("");
-    ffmpeg->initialize_copy();
 
-    int ret = ingester->initialize(ffmpeg, v, i, *pm, channel_id);
+    if (param.engine) {
+        if (ERROR_SUCCESS != ffmpeg->initialize_transcode(param.engine)) {
+            return ERROR_USER_FFMPEG_INITIALIZE;
+        }
+    }
+    else {
+        if (ERROR_SUCCESS != ffmpeg->initialize_copy()) {
+            return ERROR_USER_FFMPEG_INITIALIZE;
+        }
+    }
+
+    int ret = ingester->initialize(ffmpeg, pm->vhost, pm->ingesttype, pm->ip, pm->channel, out_channel);
     if (ERROR_SUCCESS != ret) {
-        srs_error("ingest add error to initialize ffmpeg vhost: %s app: %s key: %s id: %d", v.c_str(), i.c_str(), str_key.c_str(), channel_id);
+        srs_error("ingest add error to initialize ffmpeg key: %s id: %d", str_key.c_str(), channel_id);
         srs_freep(ffmpeg);
         srs_freep(ingester);
-        return ret;
+        return ERROR_USER_INGESTER_INITIALIZE;
     }
 
-    srs_trace("ingest add successful vhost: %s app: %s key: %s id: %d", v.c_str(), i.c_str(), str_key.c_str(), channel_id);
-    ingesters.insert(std::make_pair(channel_id, ingester));
-    return ret;
+    srs_trace("ingest add successful key: %s id: %d", str_key.c_str(), channel_id);
+    ingesters.insert(std::make_pair(sz_channel, ingester));
+    return ERROR_SUCCESS;
 }
 
-bool SrsIngester::identify_ingest(int id)
+bool SrsIngester::ingest_identify(SrsRequest* req)
 {
-    return (ingesters.find(id) != ingesters.end());
-}
+    map_ingesters::iterator iter = ingesters.find(req->get_stream_url());
+	if (iter == ingesters.end() || NULL == iter->second) {
+        return false;
+	}
 
-void SrsIngester::ingest_remove(int id)
-{
-    if (id < 0) {
-        return;
-    }
-
-    if ((id & 0xFFFF0000) == 0) {
-        return;
-    }
-
-    std::map<int, SrsIngesterFFMPEG*>::iterator iter = ingesters.find(id);
-    if (iter != ingesters.end()) {
-        srs_trace("ingest remove id: %d", id);
-        srs_freep(iter->second);
-        ingesters.erase(iter);
-    }
+    return !(iter->second->need_remove());
 }
 #endif
 
@@ -547,11 +576,20 @@ int SrsIngester::cycle()
     int ret = ERROR_SUCCESS;
     
 #ifdef __INGEST_DYNAMIC__
-    std::map<int, SrsIngesterFFMPEG*>::iterator it;
+    map_ingesters::iterator it;
+    std::vector<map_ingesters::iterator> ary_erase;
     for (it = ingesters.begin(); it != ingesters.end(); ++it) {
         SrsIngesterFFMPEG* ingester = it->second;
+        if (!ingester) {
+            continue;
+        }
 
         if (!ingester->active()) {
+            ingester->stop();
+
+            if (ingester->need_remove()) {
+                ary_erase.push_back(it);
+            }
             continue;
         }
 #else
@@ -573,6 +611,15 @@ int SrsIngester::cycle()
         }
     }
 
+#ifdef __INGEST_DYNAMIC__
+    std::vector<map_ingesters::iterator>::iterator iter = ary_erase.begin();
+    for (; iter != ary_erase.end(); ++iter) {
+        delete ((*iter)->second);
+
+        ingesters.erase(*iter);
+	}
+#endif
+
     // pithy print
     show_ingest_log_message();
     
@@ -586,7 +633,7 @@ void SrsIngester::on_thread_stop()
 void SrsIngester::clear_engines()
 {
 #ifdef __INGEST_DYNAMIC__
-    std::map<int, SrsIngesterFFMPEG*>::iterator it;
+    map_ingesters::iterator it;
 
     for (it = ingesters.begin(); it != ingesters.end(); ++it) {
         SrsIngesterFFMPEG* ingester = it->second;
@@ -753,7 +800,7 @@ void SrsIngester::show_ingest_log_message()
     int index = rand() % (int)ingesters.size();
 #ifdef __INGEST_DYNAMIC__
     SrsIngesterFFMPEG* ingester = NULL;
-    std::map<int, SrsIngesterFFMPEG*>::iterator iter;
+    map_ingesters::iterator iter;
     for (iter = ingesters.begin(); iter != ingesters.end(); ++iter) {
         if (0 == index) {
             ingester = iter->second;
@@ -796,11 +843,12 @@ int SrsIngester::on_reload_vhost_removed(string vhost)
     int ret = ERROR_SUCCESS;
     
 #ifdef __INGEST_DYNAMIC__
-    std::map<int, SrsIngesterFFMPEG*>::iterator it;
-    std::vector<int> ary_remove;
+    map_ingesters::iterator it;
+    std::vector<std::string> ary_remove;
 
     for (it = ingesters.begin(); it != ingesters.end();) {
         SrsIngesterFFMPEG* ingester = it->second;
+        it->second = NULL;
 #else
     std::vector<SrsIngesterFFMPEG*>::iterator it;
     
@@ -829,7 +877,7 @@ int SrsIngester::on_reload_vhost_removed(string vhost)
     }
 
 #ifdef __INGEST_DYNAMIC__
-    std::vector<int>::iterator iter;
+    std::vector<std::string>::iterator iter;
     for (iter = ary_remove.begin(); iter != ary_remove.end(); ++iter) {
         ingesters.erase(*iter);
     }
@@ -843,11 +891,12 @@ int SrsIngester::on_reload_ingest_removed(string vhost, string ingest_id)
     int ret = ERROR_SUCCESS;
     
 #ifdef __INGEST_DYNAMIC__
-    std::map<int, SrsIngesterFFMPEG*>::iterator it;
-    std::vector<int> ary_remove;
+    map_ingesters::iterator it;
+    std::vector<std::string> ary_remove;
 
     for (it = ingesters.begin(); it != ingesters.end();) {
         SrsIngesterFFMPEG* ingester = it->second;
+        it->second = NULL;
 #else
     std::vector<SrsIngesterFFMPEG*>::iterator it;
     
@@ -876,7 +925,7 @@ int SrsIngester::on_reload_ingest_removed(string vhost, string ingest_id)
     }
 
 #ifdef __INGEST_DYNAMIC__
-    std::vector<int>::iterator iter;
+    std::vector<std::string>::iterator iter;
     for (iter = ary_remove.begin(); iter != ary_remove.end(); ++iter) {
         ingesters.erase(*iter);
     }

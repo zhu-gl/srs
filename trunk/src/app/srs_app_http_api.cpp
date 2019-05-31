@@ -858,28 +858,31 @@ int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
     int ret = ERROR_SUCCESS;
 
     std::stringstream ss;
-    std::string vhost = r->query_get("vhost");
-    std::string ingest = r->query_get("ingest");
-    if (vhost.empty()) {
-        vhost = SRS_CONSTS_RTMP_DEFAULT_VHOST;
+    SrsRequestParam reqPM;
+
+    reqPM.vhost = r->query_get("vhost");
+    reqPM.ingesttype = r->query_get("streamtype");
+
+    if (reqPM.vhost.empty()) {
+        reqPM.vhost = SRS_CONSTS_RTMP_DEFAULT_VHOST;
     }
 
-    if (vhost.empty() || ingest.empty()) {
+    if (reqPM.ingesttype.empty()) {
         ss << SRS_JOBJECT_START
             << SRS_JFIELD_ERROR(ERROR_USER_PARAM)
             << SRS_JOBJECT_END;
 
-        srs_error("http api ingest error vhost: %s or app: %s", vhost.c_str(), ingest.c_str());
+        srs_error("http api ingest error vhost: %s or app: %s", reqPM.vhost.c_str(), reqPM.ingesttype.c_str());
         return srs_api_response(w, r, ss.str());
     }
 
-    SrsRequestParam reqPM;
-    reqPM.ip = r->query_get("ip");
-    reqPM.channel = r->query_get("channel");
-    reqPM.username = r->query_get("username");
-    reqPM.password = r->query_get("password");
+    reqPM.ip        = r->query_get("ip");
+    reqPM.channel   = r->query_get("channel");
+    reqPM.username  = r->query_get("username");
+    reqPM.password  = r->query_get("password");
     reqPM.starttime = r->query_get("starttime");
-    reqPM.endtime = r->query_get("endtime");
+    reqPM.endtime   = r->query_get("endtime");
+
     if (reqPM.ip.empty() || reqPM.channel.empty() || 
         reqPM.username.empty() || reqPM.password.empty()) {
         ss << SRS_JOBJECT_START
@@ -891,15 +894,25 @@ int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
         return srs_api_response(w, r, ss.str());
     }
 
-    std::string url_out;
-    ret = srs_svr->ingest_add(vhost, ingest, &reqPM, url_out);
+    int n_channel = atoi(reqPM.channel.c_str());
+    if (n_channel <= 0 || n_channel > 256) {
+        ss << SRS_JOBJECT_START
+            << SRS_JFIELD_ERROR(ERROR_USER_CHANNEL)
+            << SRS_JOBJECT_END;
+
+        srs_error("http api ingest error param channel: %s", reqPM.channel.c_str());
+        return srs_api_response(w, r, ss.str());
+    }
+
+    std::string out_channel;
+    ret = srs_svr->ingest_add(&reqPM, out_channel);
 
     ss << SRS_JOBJECT_START
         << SRS_JFIELD_ERROR(ret) << SRS_JFIELD_CONT
-        << SRS_JFIELD_STR("channel", url_out)
+        << SRS_JFIELD_STR("channel", out_channel)
         << SRS_JOBJECT_END;
 
-    srs_trace("http api ingest result: %d url: %s", ret, url_out.c_str());
+    srs_trace("http api ingest result: %d url: %s", ret, out_channel.c_str());
     return srs_api_response(w, r, ss.str());
 }
 #endif

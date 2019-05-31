@@ -50,7 +50,11 @@ using namespace std;
 #define SRS_RTMP_ENCODER_LIBAACPLUS     "libaacplus"
 #define SRS_RTMP_ENCODER_LIBFDKAAC      "libfdk_aac"
 
+#ifdef __INGEST_DYNAMIC__
+SrsFFMPEG::SrsFFMPEG(std::string ffmpeg_bin, int max_con /*= 5*/)
+#else
 SrsFFMPEG::SrsFFMPEG(std::string ffmpeg_bin)
+#endif
 {
     started            = false;
     fast_stopped       = false;
@@ -65,6 +69,10 @@ SrsFFMPEG::SrsFFMPEG(std::string ffmpeg_bin)
     abitrate         = 0;
     asample_rate     = 0;
     achannels         = 0;
+#ifdef __INGEST_DYNAMIC__
+    reconnect = 0;
+    reconnect_max = max_con;
+#endif
 }
 
 SrsFFMPEG::~SrsFFMPEG()
@@ -86,6 +94,23 @@ string SrsFFMPEG::output()
 {
     return _output;
 }
+
+#ifdef __INGEST_DYNAMIC__
+bool SrsFFMPEG::is_running()
+{
+    return started;
+}
+
+bool SrsFFMPEG::need_reconnect()
+{
+    return (reconnect < reconnect_max);
+}
+
+void SrsFFMPEG::reconnect_count_reset()
+{
+    reconnect = 0;
+}
+#endif
 
 int SrsFFMPEG::initialize(string in, string out, string log)
 {
@@ -240,6 +265,10 @@ int SrsFFMPEG::start()
     if (started) {
         return ret;
     }
+
+#ifdef __INGEST_DYNAMIC__
+    ++reconnect;
+#endif
     
     // prepare exec params
     char tmp[256];

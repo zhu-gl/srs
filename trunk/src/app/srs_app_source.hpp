@@ -241,6 +241,10 @@ public:
     SrsConsumer(SrsSource* s, SrsConnection* c);
     virtual ~SrsConsumer();
 public:
+#ifdef __INGEST_DYNAMIC__
+    virtual void close_connection();
+#endif
+
     /**
     * set the size of queue.
     */
@@ -415,14 +419,12 @@ class SrsSource : public ISrsReloadHandler
 {
 private:
 #ifdef __INGEST_DYNAMIC__
-    static std::map<int, SrsSource*> pool;
-    int channel_;
-
     int vdo_width;
     int vdo_height;
-#else
-    static std::map<std::string, SrsSource*> pool;
+    int use_ref;
 #endif
+    static std::map<std::string, SrsSource*> pool;
+
 public:
     /**
     *  create source when fetch from cache failed.
@@ -431,11 +433,11 @@ public:
     * @param pps the matched source, if success never be NULL.
     */
     static int fetch_or_create(SrsRequest* r, ISrsSourceHandler* h, SrsSource** pps);
-
 #ifdef __INGEST_DYNAMIC__
-    static void remove(int channel);
-    int channel();
+    static int unfetch_or_remove(SrsSource* source);
+    static int close_source_client(std::string key);
 #endif
+
 private:
     /**
     * get the exists source, NULL when not exists.
@@ -597,6 +599,10 @@ public:
         SrsConnection* conn, SrsConsumer*& consumer,
         bool ds = true, bool dm = true, bool dg = true
     );
+#ifdef __INGEST_DYNAMIC__
+    virtual int consumer_count();
+    virtual int close_consumer_client();
+#endif
     virtual void on_consumer_destroy(SrsConsumer* consumer);
     virtual void set_cache(bool enabled);
     virtual SrsRtmpJitterAlgorithm jitter();

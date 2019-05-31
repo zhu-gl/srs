@@ -567,49 +567,40 @@ void SrsServer::dispose()
 }
 
 #ifdef __INGEST_DYNAMIC__
-int SrsServer::ingest_active(SrsRequest* req)
+bool SrsServer::ingest_active(SrsRequest* req)
 {
-    if (!ingester) {
-        return ERROR_USER_PARAM;
+    if (!ingester || !req) {
+        return false;
     }
 
     return ingester->ingest_active(req);
 }
 
-void SrsServer::ingest_unactive(SrsRequest* req)
+bool SrsServer::ingest_unactive(SrsRequest* req)
 {
-    if (!ingester) {
-        return;
-    }
-
-    ingester->ingest_unactive(req);
-}
-
-int SrsServer::ingest_add(std::string v, std::string i, struct SrsRequestParam* pm, std::string& url_out)
-{
-    if (!ingester) {
-        return ERROR_USER_PARAM;
-    }
-
-    return ingester->ingest_add(v, i, pm, url_out);
-}
-
-bool SrsServer::identify_ingest(int id)
-{
-    if (!ingester) {
+    if (!ingester || !req) {
         return false;
     }
 
-    return ingester->identify_ingest(id);
+    return ingester->ingest_unactive(req);
 }
 
-void SrsServer::ingest_remove(int id)
+long SrsServer::ingest_add(struct SrsRequestParam* pm, std::string& out_channel)
 {
-    if (!ingester) {
-        return;
+    if (!ingester || !pm) {
+        return ERROR_USER_PARAM;
     }
 
-    ingester->ingest_remove(id);
+    return ingester->ingest_add(pm, out_channel);
+}
+
+bool SrsServer::ingest_identify(SrsRequest* req)
+{
+    if (!ingester || !req) {
+        return false;
+    }
+
+    return ingester->ingest_identify(req);
 }
 #endif
 

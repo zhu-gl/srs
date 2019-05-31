@@ -236,12 +236,14 @@ std::string srs_generate_stream_url(std::string vhost, std::string app, std::str
 {
     std::string url = "";
     
+#ifndef __INGEST_DYNAMIC__
     if (SRS_CONSTS_RTMP_DEFAULT_VHOST != vhost){
     	url += vhost;
     }
     url += "/";
     url += app;
     url += "/";
+#endif
     url += stream;
 
     return url;
