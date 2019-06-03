@@ -38,6 +38,13 @@ using namespace std;
 
 #define SRS_HTTP_DEFAULT_PAGE "index.html"
 
+#ifdef __INGEST_DYNAMIC__
+#include <srs_rtmp_stack.hpp>
+#include <srs_app_server.hpp>
+#include <srs_app_config.hpp>
+extern SrsServer* _srs_server;
+#endif
+
 // get the status text of code.
 string srs_generate_http_status_text(int status)
 {
@@ -282,6 +289,9 @@ int SrsHttpNotFoundHandler::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessag
 
 SrsHttpFileServer::SrsHttpFileServer(string root_dir)
 {
+#ifdef __INGEST_DYNAMIC__
+    time_out_ = _srs_config->get_hls_time_out(SRS_CONSTS_RTMP_DEFAULT_VHOST);
+#endif
     dir = root_dir;
 }
 
@@ -308,6 +318,32 @@ int SrsHttpFileServer::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
     } else {
         fullpath += upath;
     }
+
+#ifdef __INGEST_DYNAMIC__
+    size_t n_channel_end = fullpath.rfind(".m3u8");
+    if (string::npos != n_channel_end) {
+        size_t n_channel = fullpath.rfind("/");
+        if (string::npos != n_channel && n_channel_end > (++n_channel)) {
+            SrsRequest req;
+            req.stream = fullpath.substr(n_channel, n_channel_end - n_channel);
+
+            if (ERROR_SUCCESS != _srs_server->ingest_active(&req, time(NULL))) {
+                return SrsHttpNotFoundHandler().serve_http(w, r);
+            }
+
+            if (!srs_path_exists(fullpath)) {
+                time_t tm_now = time(NULL);
+                while (time(NULL) - tm_now < time_out_) {
+                    if (srs_path_exists(fullpath)) {
+                        break;
+                    }
+
+                    st_usleep(10 * 1000);
+                }
+            }
+        }
+    }    
+#endif
     
     // stat current dir, if exists, return error.
     if (!srs_path_exists(fullpath)) {

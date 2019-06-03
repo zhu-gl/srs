@@ -296,6 +296,9 @@ public:
 class SrsHttpFileServer : public ISrsHttpHandler
 {
 protected:
+#ifdef __INGEST_DYNAMIC__
+    double time_out_;
+#endif
     std::string dir;
 public:
     SrsHttpFileServer(std::string root_dir);

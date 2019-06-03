@@ -39,6 +39,9 @@ using namespace std;
 #ifdef __INGEST_DYNAMIC__
 #include <srs_app_source.hpp>
 #include <srs_rtmp_utility.hpp>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <fcntl.h>
 #endif
 
 // when error, ingester sleep for a while and retry.
@@ -48,9 +51,11 @@ using namespace std;
 SrsIngesterFFMPEG::SrsIngesterFFMPEG()
 {
 #ifdef __INGEST_DYNAMIC__
+    time_leave_ = 180;
     need_remove_ = false;
     ff_active = false;
     n_channel = -1;
+    tm_update_ = 0;
 #endif
     ffmpeg = NULL;
 }
@@ -66,7 +71,7 @@ std::string SrsIngesterFFMPEG::channel_out()
     return channel_out_;
 }
 
-void SrsIngesterFFMPEG::active(bool enable)
+void SrsIngesterFFMPEG::active(bool enable, time_t tm_update /*= 0*/)
 {
     if (!enable) {
         ffmpeg->reconnect_count_reset();
@@ -75,7 +80,13 @@ void SrsIngesterFFMPEG::active(bool enable)
         }
     }
 
-    ff_active = enable;
+    if (tm_update > 0) {
+        tm_update_ = tm_update;
+        ff_active = enable ? (ff_active | 0x01) : (ff_active & ((unsigned char)(~0x01)));
+    }
+    else {
+        ff_active = enable ? (ff_active | 0x02) : (ff_active & ((unsigned char)(~0x02)));
+    }
 }
 
 bool SrsIngesterFFMPEG::need_remove()
@@ -96,6 +107,7 @@ int SrsIngesterFFMPEG::initialize(SrsFFMPEG* ff, std::string v, std::string i, s
     channel_in_ = ch_in;
     channel_out_ = ch_out;
     n_channel = atoi(channel_out_.c_str());
+    time_leave_ = _srs_config->get_hls_leave_time(v);
     ffmpeg = ff;
     vhost = v;
     id = i;
@@ -164,11 +176,53 @@ int SrsIngesterFFMPEG::start()
 
 void SrsIngesterFFMPEG::stop()
 {
+    bool b_ret = ffmpeg->is_running();
     ffmpeg->stop();
+
+#ifdef __INGEST_DYNAMIC__
+    if (b_ret) {
+        DIR *dirp = NULL;
+        dirent *dp = NULL;
+        struct stat dir_stat;
+
+        char cur_dir[] = ".";
+        char up_dir[] = "..";
+
+        std::string full_path;
+        std::string str_path = _srs_config->get_hls_path(vhost) + "/live/";
+
+        if (0 == access(str_path.c_str(), F_OK) &&
+            0 == stat(str_path.c_str(), &dir_stat) &&
+            S_ISDIR(dir_stat.st_mode)) {
+            dirp = opendir(str_path.c_str());
+            while ((dp = readdir(dirp)) != NULL) {
+                if ((0 == strcmp(cur_dir, dp->d_name)) || (0 == strcmp(up_dir, dp->d_name))) {
+                    continue;
+                }
+
+                if (0 != strncmp(channel_out_.c_str(), dp->d_name, channel_out_.length())) {
+                    continue;
+                }
+
+                full_path = str_path + dp->d_name;
+                remove(full_path.c_str());
+            }
+            closedir(dirp);
+        }
+    }
+#endif
 }
 
 int SrsIngesterFFMPEG::cycle()
 {
+#ifdef __INGEST_DYNAMIC__
+    if (tm_update_ > 0 && (ff_active & 0x01)) {
+        if (time(NULL) > tm_update_ + time_leave_) {
+            ff_active = (ff_active & ((unsigned char)(~0x01)));
+        }
+    }
+#endif
+
     return ffmpeg->cycle();
 }
 
@@ -409,7 +463,7 @@ void SrsIngester::dispose()
 
 #ifdef __INGEST_DYNAMIC__
 #include <srs_rtmp_stack.hpp>
-long SrsIngester::ingest_active(SrsRequest* req)
+long SrsIngester::ingest_active(SrsRequest* req, time_t tm_update)
 {
     map_ingesters::iterator it = ingesters.find(req->get_stream_url());
     if (it == ingesters.end()) {
@@ -418,7 +472,7 @@ long SrsIngester::ingest_active(SrsRequest* req)
     }
 
     srs_trace("ingest: %s actived.", req->get_stream_url().c_str());
-    it->second->active(true);
+    it->second->active(true, tm_update);
     return ERROR_SUCCESS;
 }
 

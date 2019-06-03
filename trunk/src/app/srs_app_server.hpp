@@ -296,7 +296,7 @@ private:
     virtual void dispose();
 #ifdef __INGEST_DYNAMIC__
 public:
-    bool ingest_active(SrsRequest* req);
+    bool ingest_active(SrsRequest* req, time_t tm_update = 0);
     bool ingest_unactive(SrsRequest* req);
 
     long ingest_add(struct SrsRequestParam* pm, std::string& out_channel);

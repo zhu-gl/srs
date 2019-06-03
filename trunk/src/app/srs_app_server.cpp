@@ -567,13 +567,13 @@ void SrsServer::dispose()
 }
 
 #ifdef __INGEST_DYNAMIC__
-bool SrsServer::ingest_active(SrsRequest* req)
+bool SrsServer::ingest_active(SrsRequest* req, time_t tm_update /*= 0*/)
 {
     if (!ingester || !req) {
         return false;
     }
 
-    return ingester->ingest_active(req);
+    return ingester->ingest_active(req, tm_update);
 }
 
 bool SrsServer::ingest_unactive(SrsRequest* req)

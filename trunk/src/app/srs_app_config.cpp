@@ -71,6 +71,10 @@ const char* _srs_version = "XCORE-"RTMP_SIG_SRS_SERVER;
 
 #define SRS_CONF_DEFAULT_MAX_CONNECTIONS 1000
 #define SRS_CONF_DEFAULT_HLS_PATH "./objs/nginx/html"
+#ifdef __INGEST_DYNAMIC__
+#define SRS_CONF_DEFAULT_HLS_TIME_OUT 60
+#define SRS_CONF_DEFAULT_HLS_LEAVE_TIME 180
+#endif
 #define SRS_CONF_DEFAULT_HLS_M3U8_FILE "[app]/[stream].m3u8"
 #define SRS_CONF_DEFAULT_HLS_TS_FILE "[app]/[stream]-[seq].ts"
 #define SRS_CONF_DEFAULT_HLS_TS_FLOOR false
@@ -1899,6 +1903,9 @@ int SrsConfig::check_config()
                         && m != "hls_storage" && m != "hls_mount" && m != "hls_td_ratio" && m != "hls_aof_ratio" && m != "hls_acodec" && m != "hls_vcodec"
                         && m != "hls_m3u8_file" && m != "hls_ts_file" && m != "hls_ts_floor" && m != "hls_cleanup" && m != "hls_nb_notify"
                         && m != "hls_wait_keyframe" && m != "hls_dispose"
+#ifdef __INGEST_DYNAMIC__
+                        && m != "hls_leave_tm" && m != "hls_time_out"
+#endif
                         ) {
                         ret = ERROR_SYSTEM_CONFIG_INVALID;
                         srs_error("unsupported vhost hls directive %s, ret=%d", m.c_str(), ret);
@@ -3642,6 +3649,42 @@ string SrsConfig::get_hls_entry_prefix(string vhost)
 
     return conf->arg0();
 }
+
+#ifdef __INGEST_DYNAMIC__
+double SrsConfig::get_hls_leave_time(string vhost)
+{
+    SrsConfDirective* hls = get_hls(vhost);
+
+    if (!hls) {
+        return SRS_CONF_DEFAULT_HLS_LEAVE_TIME;
+    }
+
+    SrsConfDirective* conf = hls->get("hls_leave_tm");
+
+    if (!conf) {
+        return SRS_CONF_DEFAULT_HLS_LEAVE_TIME;
+    }
+
+    return ::atof(conf->arg0().c_str());
+}
+
+double SrsConfig::get_hls_time_out(string vhost)
+{
+    SrsConfDirective* hls = get_hls(vhost);
+
+    if (!hls) {
+        return SRS_CONF_DEFAULT_HLS_TIME_OUT;
+    }
+
+    SrsConfDirective* conf = hls->get("hls_time_out");
+
+    if (!conf) {
+        return SRS_CONF_DEFAULT_HLS_TIME_OUT;
+    }
+
+    return ::atof(conf->arg0().c_str());
+}
+#endif
 
 string SrsConfig::get_hls_path(string vhost)
 {

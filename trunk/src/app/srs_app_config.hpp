@@ -873,6 +873,10 @@ public:
     * get the HLS m3u8 list ts segment entry prefix info.
     */
     virtual std::string         get_hls_entry_prefix(std::string vhost);
+#ifdef __INGEST_DYNAMIC__
+    virtual double              get_hls_leave_time(std::string vhost);
+    virtual double              get_hls_time_out(std::string vhost);
+#endif
     /**
      * get the HLS ts/m3u8 file store path.
      */

@@ -100,8 +100,10 @@ private:
     std::string id;
 #ifdef __INGEST_DYNAMIC__
     int n_channel;
-    bool ff_active;
+    unsigned char ff_active;
     bool need_remove_;
+    double time_leave_;
+    time_t tm_update_;
     std::string ip_in_;
     std::string channel_in_;
     std::string channel_out_;
@@ -114,7 +116,7 @@ public:
 
 #ifdef __INGEST_DYNAMIC__
     std::string channel_out();
-    void active(bool enable);
+    void active(bool enable, time_t tm_update = 0);
     bool need_remove();
     bool active();
 #endif
@@ -171,7 +173,7 @@ public:
 public:
     virtual void dispose();
 #ifdef __INGEST_DYNAMIC__
-    long ingest_active(SrsRequest* req);
+    long ingest_active(SrsRequest* req, time_t tm_update);
     bool ingest_unactive(SrsRequest* req);
 
     long ingest_add(struct SrsRequestParam* pm, std::string& out_channel);
