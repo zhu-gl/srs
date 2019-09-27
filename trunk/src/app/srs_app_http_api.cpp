@@ -853,6 +853,48 @@ SrsGoApiIngest::~SrsGoApiIngest()
 {
 }
 
+static inline string string_to_device_time(int type, const string& time) {
+    char time_tmp[32] = { 0 };
+    int year, mon, day, hour, min, sec;
+    int i_ret = sscanf(time.c_str(), "%d-%d-%d %d:%d:%d", &year, &mon, &day, &hour, &min, &sec);
+    if (6 != i_ret) {
+        return time_tmp;
+    }
+
+    if (0x01 & type) {
+        snprintf(time_tmp, sizeof(time_tmp), "%04d%02d%02dt%02d%02d%02dz", year, mon, day, hour, min, sec);
+    }
+    else if (0x02 & type) {
+        snprintf(time_tmp, sizeof(time_tmp), "%04d_%02d_%02d_%02d_%02d_%02d", year, mon, day, hour, min, sec);
+    }
+
+    return time_tmp;
+}
+
+std::string url_decode(std::string str_url) {
+    std::string str_ret;
+    str_ret.reserve(str_url.size());
+
+    std::size_t n_len = str_url.size();
+    for (std::size_t n = 0; n < n_len; ++n) {
+        const char& chr = str_url[n];
+        if (chr == '%' && n + 2 < n_len) {
+            std::string hex = str_url.substr(n + 1, 2);
+            char decoded_chr = static_cast<char>(strtol(hex.c_str(), NULL, 16));
+            str_ret += decoded_chr;
+            n += 2;
+        }
+        else if (chr == '+') {
+            str_ret += ' ';
+        }
+        else {
+            str_ret += chr;
+        }
+    }
+
+    return str_ret;
+}
+
 int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
 {
     int ret = ERROR_SUCCESS;
@@ -878,10 +920,17 @@ int SrsGoApiIngest::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
 
     reqPM.ip        = r->query_get("ip");
     reqPM.channel   = r->query_get("channel");
-    reqPM.username  = r->query_get("username");
-    reqPM.password  = r->query_get("password");
-    reqPM.starttime = r->query_get("starttime");
-    reqPM.endtime   = r->query_get("endtime");
+    reqPM.username  = url_decode(r->query_get("username"));
+    reqPM.password  = url_decode(r->query_get("password"));
+
+    if (reqPM.ingesttype == "videohk") {
+        reqPM.starttime = string_to_device_time(0x01, url_decode(r->query_get("starttime")));
+        reqPM.endtime = string_to_device_time(0x01, url_decode(r->query_get("endtime")));
+    }
+    else if (reqPM.ingesttype == "videodh") {
+        reqPM.starttime = string_to_device_time(0x02, url_decode(r->query_get("starttime")));
+        reqPM.endtime = string_to_device_time(0x02, url_decode(r->query_get("endtime")));
+    }
 
     if (reqPM.ip.empty() || reqPM.channel.empty() || 
         reqPM.username.empty() || reqPM.password.empty()) {
